@@ -1,97 +1,233 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Target History - World Class History Learning App
 
-# Getting Started
+A comprehensive, world-class history learning application built with React Native, featuring interactive maps, engaging quizzes, and extensive historical content covering both Indian and World history.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 🌟 Features
 
-## Step 1: Start Metro
+### 📚 Comprehensive Content
+- **Ancient History**: From Indus Valley Civilization to Gupta Empire
+- **Medieval History**: Delhi Sultanate, Mughal Empire, and more
+- **Modern History**: Colonial period to Independence and beyond
+- **World History**: Ancient civilizations, empires, and modern events
+- **Historical Concepts**: AD/BC system, dynasties, feudalism, trade routes, and more
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### 🗺️ Interactive Maps
+- **Leaflet Integration**: Beautiful, interactive maps showing historical events
+- **Event Locations**: Precise geographical locations of historical events
+- **Time-based Filtering**: View events by historical periods
+- **Detailed Popups**: Rich information about each historical location
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 🧠 Smart Quiz System
+- **Adaptive Difficulty**: Easy, Medium, and Hard questions
+- **Category Filtering**: Ancient, Medieval, Modern periods
+- **Region Focus**: Indian History vs World History
+- **Detailed Explanations**: Learn from every question
+- **Progress Tracking**: Monitor your learning journey
+- **Achievements System**: Unlock badges and rewards
 
-```sh
-# Using npm
-npm start
+### 📱 Modern UI/UX
+- **Dark/Light Theme**: Comfortable viewing in any environment
+- **Smooth Animations**: Engaging transitions and micro-interactions
+- **Responsive Design**: Optimized for all screen sizes
+- **Intuitive Navigation**: Easy-to-use bottom tab navigation
 
-# OR using Yarn
-yarn start
+### 🎯 Learning Features
+- **Favorites System**: Save important events for quick access
+- **Search Functionality**: Find specific events, rulers, or concepts
+- **Timeline View**: Chronological understanding of events
+- **Ruler Profiles**: Detailed information about historical figures
+- **Concept Explanations**: Clear explanations of historical terms
+
+## 🏗️ Technical Architecture
+
+### Frontend
+- **React Native 0.83.1**: Latest stable version
+- **TypeScript**: Type-safe development
+- **Redux Toolkit**: State management
+- **React Navigation 6**: Navigation system
+- **React Native Vector Icons**: Beautiful iconography
+- **React Native Animatable**: Smooth animations
+- **React Native Linear Gradient**: Beautiful gradients
+
+### Maps & Visualization
+- **React Native WebView**: For Leaflet map integration
+- **Leaflet**: Interactive mapping library
+- **Custom Markers**: Historical event markers with categories
+
+### UI Components
+- **React Native Paper**: Material Design components
+- **React Native Progress**: Progress indicators
+- **React Native Modal**: Modal dialogs
+- **Custom Components**: Tailored for historical content
+
+## 📁 Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+├── data/               # Historical data and quiz questions
+│   ├── historicalData.ts
+│   └── quizData.ts
+├── navigation/         # Navigation configuration
+│   └── AppNavigator.tsx
+├── screens/           # App screens
+│   ├── HomeScreen.tsx
+│   ├── ExploreScreen.tsx
+│   ├── ConceptsScreen.tsx
+│   ├── EventsScreen.tsx
+│   ├── MapScreen.tsx
+│   ├── QuizScreen.tsx
+│   ├── QuizSetupScreen.tsx
+│   ├── QuizResultScreen.tsx
+│   ├── ProfileScreen.tsx
+│   ├── EventDetailScreen.tsx
+│   ├── RulerDetailScreen.tsx
+│   └── TimelineScreen.tsx
+└── store/             # Redux store configuration
+    ├── index.ts
+    └── slices/
+        ├── historySlice.ts
+        ├── quizSlice.ts
+        └── userSlice.ts
 ```
 
-## Step 2: Build and run your app
+## 🚀 Getting Started
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### Prerequisites
+- Node.js (>= 20)
+- React Native CLI
+- Android Studio (for Android development)
+- Xcode (for iOS development)
 
-### Android
+### Installation
 
-```sh
-# Using npm
-npm run android
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd TargetHistory
+   ```
 
-# OR using Yarn
-yarn android
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Install iOS dependencies** (iOS only)
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+4. **Start Metro bundler**
+   ```bash
+   npm start
+   ```
+
+5. **Run the app**
+   ```bash
+   # For Android
+   npm run android
+   
+   # For iOS
+   npm run ios
+   ```
+
+## 📊 Data Structure
+
+### Historical Events
+```typescript
+interface HistoricalEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  year: number;
+  category: 'ancient' | 'medieval' | 'modern';
+  region: 'world' | 'india';
+  latitude?: number;
+  longitude?: number;
+  rulers?: string[];
+  significance: string;
+}
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+### Quiz Questions
+```typescript
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: 'ancient' | 'medieval' | 'modern';
+  region: 'world' | 'india';
+  points: number;
+}
 ```
 
-Then, and every time you update your native dependencies, run:
+## 🎨 Design System
 
-```sh
-bundle exec pod install
-```
+### Colors
+- **Primary**: #FF6B35 (Orange)
+- **Secondary**: #F7931E (Light Orange)
+- **Success**: #4CAF50 (Green)
+- **Warning**: #FF9800 (Amber)
+- **Error**: #F44336 (Red)
+- **Info**: #2196F3 (Blue)
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### Typography
+- **Headers**: Bold, 24-32px
+- **Body**: Regular, 14-16px
+- **Captions**: Light, 12px
 
-```sh
-# Using npm
-npm run ios
+## 🔄 State Management
 
-# OR using Yarn
-yarn ios
-```
+The app uses Redux Toolkit for state management with three main slices:
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+1. **History Slice**: Manages historical events, periods, and rulers
+2. **Quiz Slice**: Handles quiz state, questions, and results
+3. **User Slice**: User profile, preferences, and statistics
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+## 🗺️ Map Integration
 
-## Step 3: Modify your app
+The app uses Leaflet maps through React Native WebView for:
+- Displaying historical events on an interactive map
+- Custom markers for different historical periods
+- Popup information for each event
+- Filtering by time periods and regions
 
-Now that you have successfully run the app, let's make changes!
+## 📱 Responsive Design
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+- Optimized for both phones and tablets
+- Dark and light theme support
+- Smooth animations and transitions
+- Accessibility features
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## 🔮 Future Enhancements
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+- **API Integration**: Connect to external historical databases
+- **Offline Mode**: Download content for offline learning
+- **Social Features**: Share achievements and compete with friends
+- **Advanced Analytics**: Detailed learning progress tracking
+- **Voice Narration**: Audio descriptions of historical events
+- **AR Features**: Augmented reality historical experiences
+- **Multi-language Support**: Support for multiple Indian languages
 
-## Congratulations! :tada:
+## 🤝 Contributing
 
-You've successfully run and modified your React Native App. :partying_face:
+We welcome contributions! Please read our contributing guidelines and submit pull requests for any improvements.
 
-### Now what?
+## 📄 License
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-# Troubleshooting
+## 🙏 Acknowledgments
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+- Historical data sourced from various educational institutions
+- Map tiles provided by OpenStreetMap
+- Icons by Material Design Icons
+- Special thanks to the React Native community
 
-# Learn More
+---
 
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+**Target History** - Making history learning engaging, interactive, and accessible for students preparing for government exams and history enthusiasts worldwide.
