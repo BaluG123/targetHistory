@@ -10,9 +10,6 @@ import { Colors, getThemeColors } from '../constants/Colors';
 // Screens
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
-import ConceptsScreen from '../screens/ConceptsScreen';
-import EventsScreen from '../screens/EventsScreen';
-import MapScreen from '../screens/MapScreen';
 import QuizScreen from '../screens/QuizScreen';
 import QuizSetupScreen from '../screens/QuizSetupScreen';
 import QuizResultScreen from '../screens/QuizResultScreen';
@@ -20,6 +17,9 @@ import ProfileScreen from '../screens/ProfileScreen';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import RulerDetailScreen from '../screens/RulerDetailScreen';
 import TimelineScreen from '../screens/TimelineScreen';
+import MapScreen from '../screens/MapScreen';
+import ConceptsScreen from '../screens/ConceptsScreen';
+import EventsScreen from '../screens/EventsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,6 +38,9 @@ const ExploreStack = () => (
     <Stack.Screen name="EventDetail" component={EventDetailScreen} />
     <Stack.Screen name="RulerDetail" component={RulerDetailScreen} />
     <Stack.Screen name="Timeline" component={TimelineScreen} />
+    <Stack.Screen name="Map" component={MapScreen} />
+    <Stack.Screen name="Concepts" component={ConceptsScreen} />
+    <Stack.Screen name="Events" component={EventsScreen} />
   </Stack.Navigator>
 );
 
@@ -45,32 +48,6 @@ const AppNavigator = () => {
   const theme = useSelector((state: RootState) => state.user.preferences.theme);
   const isDark = theme === 'dark';
   const themeColors = getThemeColors(isDark);
-  
-  const tabBarOptions = {
-    activeTintColor: Colors.primary,
-    inactiveTintColor: themeColors.textTertiary,
-    style: {
-      backgroundColor: themeColors.surface,
-      borderTopColor: themeColors.border,
-      borderTopWidth: 1,
-      height: 65,
-      paddingBottom: 8,
-      paddingTop: 8,
-      elevation: 8,
-      shadowColor: themeColors.shadow,
-      shadowOffset: { width: 0, height: -2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-    },
-    labelStyle: {
-      fontSize: 11,
-      fontWeight: '600',
-      marginTop: 2,
-    },
-    tabStyle: {
-      paddingVertical: 4,
-    },
-  };
 
   const getTabBarIcon = (routeName: string, focused: boolean, color: string, size: number) => {
     let iconName: string;
@@ -82,15 +59,6 @@ const AppNavigator = () => {
         break;
       case 'Explore':
         iconName = 'explore';
-        break;
-      case 'Concepts':
-        iconName = 'school';
-        break;
-      case 'Events':
-        iconName = 'event';
-        break;
-      case 'Map':
-        iconName = 'map';
         break;
       case 'Quiz':
         iconName = 'quiz';
@@ -190,27 +158,6 @@ const AppNavigator = () => {
           component={ExploreStack}
           options={{
             tabBarLabel: 'Explore',
-          }}
-        />
-        <Tab.Screen 
-          name="Concepts" 
-          component={ConceptsScreen}
-          options={{
-            tabBarLabel: 'Concepts',
-          }}
-        />
-        <Tab.Screen 
-          name="Events" 
-          component={EventsScreen}
-          options={{
-            tabBarLabel: 'Events',
-          }}
-        />
-        <Tab.Screen 
-          name="Map" 
-          component={MapScreen}
-          options={{
-            tabBarLabel: 'Map',
           }}
         />
         <Tab.Screen 

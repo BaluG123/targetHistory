@@ -148,38 +148,45 @@ const HomeScreen = ({ navigation }: any) => {
 
         {/* Feature Cards */}
         <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Explore Features</Text>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.featuresGrid}>
             <FeatureCard
-              title="Interactive Maps"
-              description="Explore historical events on beautiful interactive maps"
-              icon="map"
-              gradient={Colors.gradients.ocean}
-              onPress={() => navigation.navigate('Map')}
-              delay={800}
-            />
-            <FeatureCard
-              title="Quiz Challenge"
+              title="Start Quiz"
               description="Test your knowledge with engaging quizzes"
               icon="quiz"
               gradient={Colors.gradients.royal}
               onPress={() => navigation.navigate('Quiz')}
-              delay={900}
+              delay={800}
             />
             <FeatureCard
-              title="Timeline"
-              description="Journey through time with interactive timelines"
-              icon="timeline"
-              gradient={Colors.gradients.medieval}
-              onPress={() => navigation.navigate('Events')}
+              title="Explore History"
+              description="Discover events, maps, and timelines"
+              icon="explore"
+              gradient={Colors.gradients.ocean}
+              onPress={() => navigation.navigate('Explore')}
+              delay={900}
+            />
+          </View>
+        </View>
+
+        {/* Coming Soon Preview */}
+        <View style={styles.featuresSection}>
+          <Text style={styles.sectionTitle}>Coming Soon</Text>
+          <View style={styles.featuresGrid}>
+            <FeatureCard
+              title="Video Lectures"
+              description="Expert lectures on historical topics"
+              icon="play-circle-filled"
+              gradient={['#95A5A6', '#BDC3C7']}
+              onPress={() => {}}
               delay={1000}
             />
             <FeatureCard
-              title="Concepts"
-              description="Learn key historical concepts and terms"
-              icon="school"
-              gradient={Colors.gradients.ancient}
-              onPress={() => navigation.navigate('Concepts')}
+              title="Study Groups"
+              description="Connect with fellow history enthusiasts"
+              icon="group"
+              gradient={['#95A5A6', '#BDC3C7']}
+              onPress={() => {}}
               delay={1100}
             />
           </View>

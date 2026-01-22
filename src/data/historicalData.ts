@@ -260,3 +260,153 @@ export const timeSystemExplanation = {
 - Example: From 50 BC to 50 AD = 50 + 50 = 100 years
   `,
 };
+
+// Coming Soon Features Data
+export const comingSoonFeatures = [
+  {
+    id: 'video-lectures',
+    title: 'Video Lectures',
+    description: 'Expert historians will provide in-depth video lectures on key topics',
+    icon: 'play-circle-filled',
+    category: 'learning',
+    estimatedLaunch: 'Q2 2024',
+  },
+  {
+    id: 'audio-stories',
+    title: 'Audio Stories',
+    description: 'Listen to captivating historical narratives and stories',
+    icon: 'headset',
+    category: 'entertainment',
+    estimatedLaunch: 'Q3 2024',
+  },
+  {
+    id: '3d-monuments',
+    title: '3D Monument Tours',
+    description: 'Virtual reality tours of historical monuments and sites',
+    icon: 'view-in-ar',
+    category: 'immersive',
+    estimatedLaunch: 'Q4 2024',
+  },
+  {
+    id: 'study-groups',
+    title: 'Study Groups',
+    description: 'Join study groups and discuss with fellow history enthusiasts',
+    icon: 'group',
+    category: 'social',
+    estimatedLaunch: 'Q1 2025',
+  },
+  {
+    id: 'ai-tutor',
+    title: 'AI History Tutor',
+    description: 'Personalized AI tutor to help with your history studies',
+    icon: 'psychology',
+    category: 'ai',
+    estimatedLaunch: 'Q2 2025',
+  },
+  {
+    id: 'live-classes',
+    title: 'Live Classes',
+    description: 'Attend live interactive classes with expert historians',
+    icon: 'live-tv',
+    category: 'education',
+    estimatedLaunch: 'Q3 2025',
+  },
+];
+
+// Study Tips and Learning Resources
+export const studyTips = [
+  {
+    id: 'tip-1',
+    title: 'Chronological Learning',
+    description: 'Start with ancient history to build a strong foundation, then progress chronologically through medieval and modern periods.',
+    category: 'strategy',
+    difficulty: 'beginner',
+  },
+  {
+    id: 'tip-2',
+    title: 'Use Visual Aids',
+    description: 'Utilize maps, timelines, and diagrams to better understand historical events and their geographical context.',
+    category: 'technique',
+    difficulty: 'intermediate',
+  },
+  {
+    id: 'tip-3',
+    title: 'Connect Events',
+    description: 'Look for cause-and-effect relationships between historical events to understand the flow of history.',
+    category: 'analysis',
+    difficulty: 'advanced',
+  },
+  {
+    id: 'tip-4',
+    title: 'Regular Revision',
+    description: 'Review previously learned topics regularly to strengthen your memory and understanding.',
+    category: 'retention',
+    difficulty: 'beginner',
+  },
+  {
+    id: 'tip-5',
+    title: 'Practice with Quizzes',
+    description: 'Take regular quizzes to test your knowledge and identify areas that need more attention.',
+    category: 'assessment',
+    difficulty: 'intermediate',
+  },
+];
+
+// Bookmarks and User Progress (placeholder data)
+export const userBookmarks = [
+  {
+    id: 'bookmark-1',
+    type: 'event',
+    itemId: 'mauryan-empire',
+    title: 'Mauryan Empire Foundation',
+    dateBookmarked: '2024-01-15',
+  },
+  {
+    id: 'bookmark-2',
+    type: 'ruler',
+    itemId: 'ashoka',
+    title: 'Emperor Ashoka',
+    dateBookmarked: '2024-01-14',
+  },
+  {
+    id: 'bookmark-3',
+    type: 'concept',
+    itemId: 'feudalism',
+    title: 'Feudalism System',
+    dateBookmarked: '2024-01-13',
+  },
+];
+
+export const enhancedUserProgress = {
+  totalTopicsStudied: 45,
+  quizzesCompleted: 23,
+  averageScore: 78,
+  studyStreak: 7,
+  timeSpentLearning: 1240, // in minutes
+  favoriteCategory: 'ancient',
+  weakestCategory: 'modern',
+  strongestCategory: 'medieval',
+  achievements: [
+    {
+      id: 'first-quiz',
+      title: 'First Quiz Completed',
+      description: 'Completed your first history quiz',
+      unlockedDate: '2024-01-10',
+      icon: 'quiz',
+    },
+    {
+      id: 'week-streak',
+      title: 'Week Warrior',
+      description: 'Maintained a 7-day study streak',
+      unlockedDate: '2024-01-20',
+      icon: 'local-fire-department',
+    },
+    {
+      id: 'ancient-master',
+      title: 'Ancient History Master',
+      description: 'Scored 90+ in all ancient history quizzes',
+      unlockedDate: '2024-01-18',
+      icon: 'star',
+    },
+  ],
+};
