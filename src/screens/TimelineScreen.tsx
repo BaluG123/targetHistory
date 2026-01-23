@@ -10,11 +10,11 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 const TimelineScreen = ({ navigation }: any) => {
   const { user } = useSelector((state: RootState) => state);
-  
+
   const isDark = user.preferences.theme === 'dark';
   const styles = createStyles(isDark);
 
@@ -36,14 +36,14 @@ const TimelineScreen = ({ navigation }: any) => {
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Animatable.View animation="fadeInUp" style={styles.comingSoonContainer}>
+        <Animated.View entering={FadeInUp} style={styles.comingSoonContainer}>
           <Icon name="timeline" size={80} color="#FF6B35" />
           <Text style={styles.comingSoonTitle}>Interactive Timeline</Text>
           <Text style={styles.comingSoonSubtitle}>Coming Soon!</Text>
           <Text style={styles.comingSoonDescription}>
             We're working on an amazing interactive timeline that will let you:
           </Text>
-          
+
           <View style={styles.featuresList}>
             <View style={styles.featureItem}>
               <Icon name="touch-app" size={20} color="#4CAF50" />
@@ -82,7 +82,7 @@ const TimelineScreen = ({ navigation }: any) => {
               <Text style={styles.exploreButtonText}>Explore Events Instead</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </Animatable.View>
+        </Animated.View>
       </ScrollView>
     </View>
   );

@@ -13,12 +13,47 @@ import { RootState } from '../store';
 import { updatePreferences, setUserProfile } from '../store/slices/userSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
+
+const StatCard = ({ title, value, icon, color, styles }: any) => (
+  <Animated.View entering={FadeInUp.delay(300)} style={styles.statCard}>
+    <LinearGradient
+      colors={[color, `${color}80`]}
+      style={styles.statGradient}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <Icon name={icon} size={24} color="#fff" />
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statTitle}>{title}</Text>
+    </LinearGradient>
+  </Animated.View>
+);
+
+const SettingItem = ({ title, subtitle, icon, rightComponent, styles }: any) => (
+  <View style={styles.settingItem}>
+    <View style={styles.settingLeft}>
+      <Icon name={icon} size={24} color="#FF6B35" />
+      <View style={styles.settingText}>
+        <Text style={styles.settingTitle}>{title}</Text>
+        {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
+      </View>
+    </View>
+    {rightComponent}
+  </View>
+);
+
+const AchievementBadge = ({ achievement, styles }: { achievement: string, styles: any }) => (
+  <View style={styles.achievementBadge}>
+    <Icon name="star" size={16} color="#FFD700" />
+    <Text style={styles.achievementText}>{achievement}</Text>
+  </View>
+);
 
 const ProfileScreen = () => {
   const dispatch = useDispatch();
   const { user, quiz } = useSelector((state: RootState) => state);
-  
+
   const isDark = user.preferences.theme === 'dark';
   const styles = createStyles(isDark);
 
@@ -52,8 +87,8 @@ const ProfileScreen = () => {
       'Are you sure you want to reset all your progress? This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Reset', 
+        {
+          text: 'Reset',
           style: 'destructive',
           onPress: () => {
             // Reset user stats
@@ -64,40 +99,6 @@ const ProfileScreen = () => {
     );
   };
 
-  const StatCard = ({ title, value, icon, color }: any) => (
-    <Animatable.View animation="fadeInUp" delay={300} style={styles.statCard}>
-      <LinearGradient
-        colors={[color, `${color}80`]}
-        style={styles.statGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <Icon name={icon} size={24} color="#fff" />
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statTitle}>{title}</Text>
-      </LinearGradient>
-    </Animatable.View>
-  );
-
-  const SettingItem = ({ title, subtitle, icon, rightComponent }: any) => (
-    <View style={styles.settingItem}>
-      <View style={styles.settingLeft}>
-        <Icon name={icon} size={24} color="#FF6B35" />
-        <View style={styles.settingText}>
-          <Text style={styles.settingTitle}>{title}</Text>
-          {subtitle && <Text style={styles.settingSubtitle}>{subtitle}</Text>}
-        </View>
-      </View>
-      {rightComponent}
-    </View>
-  );
-
-  const AchievementBadge = ({ achievement }: { achievement: string }) => (
-    <View style={styles.achievementBadge}>
-      <Icon name="star" size={16} color="#FFD700" />
-      <Text style={styles.achievementText}>{achievement}</Text>
-    </View>
-  );
 
   const getExperienceProgress = () => {
     const currentLevelXP = (user.level - 1) * 1000;
@@ -113,7 +114,7 @@ const ProfileScreen = () => {
         colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
         style={styles.header}
       >
-        <Animatable.View animation="fadeInDown" style={styles.profileSection}>
+        <Animated.View entering={FadeInDown} style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             <Icon name="person" size={40} color="#fff" />
           </View>
@@ -132,7 +133,7 @@ const ProfileScreen = () => {
           <TouchableOpacity onPress={handleEditProfile} style={styles.editButton}>
             <Icon name="edit" size={20} color="#fff" />
           </TouchableOpacity>
-        </Animatable.View>
+        </Animated.View>
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -143,42 +144,46 @@ const ProfileScreen = () => {
             value={user.stats.totalQuizzesTaken}
             icon="quiz"
             color="#9C27B0"
+            styles={styles}
           />
           <StatCard
             title="Best Score"
             value={`${user.stats.bestScore}%`}
             icon="trending-up"
             color="#4CAF50"
+            styles={styles}
           />
           <StatCard
             title="Current Streak"
             value={user.stats.streak}
             icon="local-fire-department"
             color="#FF5722"
+            styles={styles}
           />
           <StatCard
             title="Time Spent"
             value={`${Math.floor(user.stats.totalTimeSpent / 60)}h`}
             icon="schedule"
             color="#2196F3"
+            styles={styles}
           />
         </View>
 
         {/* Achievements */}
         {user.achievements.length > 0 && (
-          <Animatable.View animation="fadeInUp" delay={500} style={styles.achievementsSection}>
+          <Animated.View entering={FadeInUp.delay(500)} style={styles.achievementsSection}>
             <Text style={styles.sectionTitle}>Achievements</Text>
             <View style={styles.achievementsList}>
               {user.achievements.map((achievement, index) => (
-                <AchievementBadge key={index} achievement={achievement} />
+                <AchievementBadge key={index} achievement={achievement} styles={styles} />
               ))}
             </View>
-          </Animatable.View>
+          </Animated.View>
         )}
 
         {/* Recent Quiz Results */}
         {quiz.quizResults.length > 0 && (
-          <Animatable.View animation="fadeInUp" delay={600} style={styles.recentQuizzesSection}>
+          <Animated.View entering={FadeInUp.delay(600)} style={styles.recentQuizzesSection}>
             <Text style={styles.sectionTitle}>Recent Quiz Results</Text>
             {quiz.quizResults.slice(-3).reverse().map((result, index) => (
               <View key={result.id} style={styles.quizResultCard}>
@@ -196,17 +201,18 @@ const ProfileScreen = () => {
                 </Text>
               </View>
             ))}
-          </Animatable.View>
+          </Animated.View>
         )}
 
         {/* Settings */}
-        <Animatable.View animation="fadeInUp" delay={700} style={styles.settingsSection}>
+        <Animated.View entering={FadeInUp.delay(700)} style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          
+
           <SettingItem
             title="Dark Theme"
             subtitle="Switch between light and dark themes"
             icon="dark-mode"
+            styles={styles}
             rightComponent={
               <Switch
                 value={isDark}
@@ -221,6 +227,7 @@ const ProfileScreen = () => {
             title="Notifications"
             subtitle="Receive quiz reminders and updates"
             icon="notifications"
+            styles={styles}
             rightComponent={
               <Switch
                 value={user.preferences.notifications}
@@ -235,6 +242,7 @@ const ProfileScreen = () => {
             title="Sound Effects"
             subtitle="Enable sound effects during quizzes"
             icon="volume-up"
+            styles={styles}
             rightComponent={
               <Switch
                 value={user.preferences.soundEnabled}
@@ -249,6 +257,7 @@ const ProfileScreen = () => {
             title="Language"
             subtitle={`Current: ${user.preferences.language === 'hi' ? 'Hindi' : 'English'}`}
             icon="language"
+            styles={styles}
             rightComponent={
               <Switch
                 value={user.preferences.language === 'hi'}
@@ -258,10 +267,10 @@ const ProfileScreen = () => {
               />
             }
           />
-        </Animatable.View>
+        </Animated.View>
 
         {/* Actions */}
-        <Animatable.View animation="fadeInUp" delay={800} style={styles.actionsSection}>
+        <Animated.View entering={FadeInUp.delay(800)} style={styles.actionsSection}>
           <TouchableOpacity style={styles.actionButton} onPress={handleResetProgress}>
             <Icon name="refresh" size={24} color="#F44336" />
             <Text style={[styles.actionButtonText, { color: '#F44336' }]}>
@@ -278,7 +287,7 @@ const ProfileScreen = () => {
             <Icon name="info" size={24} color="#FF6B35" />
             <Text style={styles.actionButtonText}>About Target History</Text>
           </TouchableOpacity>
-        </Animatable.View>
+        </Animated.View>
       </ScrollView>
     </View>
   );

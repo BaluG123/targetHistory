@@ -12,16 +12,16 @@ import { RootState } from '../store';
 import { toggleFavorite } from '../store/slices/historySlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 const InfoCard = ({ title, content, icon, styles }: any) => (
-  <Animatable.View animation="fadeInUp" style={styles.infoCard}>
+  <Animated.View entering={FadeInUp} style={styles.infoCard}>
     <View style={styles.infoHeader}>
       <Icon name={icon} size={24} color="#FF6B35" />
       <Text style={styles.infoTitle}>{title}</Text>
     </View>
     <Text style={styles.infoContent}>{content}</Text>
-  </Animatable.View>
+  </Animated.View>
 );
 
 const EventDetailScreen = ({ route, navigation }: any) => {
@@ -62,15 +62,9 @@ const EventDetailScreen = ({ route, navigation }: any) => {
     return `${year} CE`;
   };
 
-  const InfoCard = ({ title, content, icon }: any) => (
-    <Animatable.View animation="fadeInUp" style={styles.infoCard}>
-      <View style={styles.infoHeader}>
-        <Icon name={icon} size={24} color="#FF6B35" />
-        <Text style={styles.infoTitle}>{title}</Text>
-      </View>
-      <Text style={styles.infoContent}>{content}</Text>
-    </Animatable.View>
-  );
+  // No need for a second InfoCard definition inside the component, 
+  // but if it's there, let's update or remove it. 
+  // It seems there was a duplicate InfoCard at line 65.
 
   return (
     <View style={styles.container}>
@@ -99,7 +93,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        <Animatable.View animation="fadeInDown" delay={300}>
+        <Animated.View entering={FadeInDown.delay(300)}>
           <Text style={styles.eventTitle}>{event.title}</Text>
           <Text style={styles.eventDate}>{event.date}</Text>
 
@@ -111,15 +105,15 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               <Text style={styles.tagText}>{event.region}</Text>
             </View>
           </View>
-        </Animatable.View>
+        </Animated.View>
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Main Description */}
-        <Animatable.View animation="fadeInUp" delay={500} style={styles.descriptionCard}>
+        <Animated.View entering={FadeInUp.delay(500)} style={styles.descriptionCard}>
           <Text style={styles.descriptionTitle}>Overview</Text>
           <Text style={styles.descriptionText}>{event.description}</Text>
-        </Animatable.View>
+        </Animated.View>
 
         {/* Historical Significance */}
         {event.significance && (
@@ -133,7 +127,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
 
         {/* Key Figures */}
         {event.rulers && event.rulers.length > 0 && (
-          <Animatable.View animation="fadeInUp" delay={700} style={styles.rulersCard}>
+          <Animated.View entering={FadeInUp.delay(700)} style={styles.rulersCard}>
             <View style={styles.infoHeader}>
               <Icon name="person" size={24} color="#FF6B35" />
               <Text style={styles.infoTitle}>Key Figures</Text>
@@ -144,11 +138,11 @@ const EventDetailScreen = ({ route, navigation }: any) => {
                 <Text style={styles.rulerName}>{ruler}</Text>
               </View>
             ))}
-          </Animatable.View>
+          </Animated.View>
         )}
 
         {/* Timeline Context */}
-        <Animatable.View animation="fadeInUp" delay={900} style={styles.timelineCard}>
+        <Animated.View entering={FadeInUp.delay(900)} style={styles.timelineCard}>
           <View style={styles.infoHeader}>
             <Icon name="timeline" size={24} color="#FF6B35" />
             <Text style={styles.infoTitle}>Timeline Context</Text>
@@ -181,17 +175,20 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               </View>
             ))
           }
-        </Animatable.View>
+        </Animated.View>
 
         {/* Location */}
         {event.latitude && event.longitude && (
-          <Animatable.View animation="fadeInUp" delay={1100} style={styles.locationCard}>
+          <Animated.View entering={FadeInUp.delay(1100)} style={styles.locationCard}>
             <View style={styles.infoHeader}>
               <Icon name="place" size={24} color="#FF6B35" />
               <Text style={styles.infoTitle}>Location</Text>
             </View>
+            <Text style={styles.locationNameText}>
+              {event.locationName || 'Historical Site'}
+            </Text>
             <Text style={styles.coordinatesText}>
-              Latitude: {event.latitude.toFixed(4)}°, Longitude: {event.longitude.toFixed(4)}°
+              {event.latitude.toFixed(4)}°, {event.longitude.toFixed(4)}°
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('Map')}
@@ -200,11 +197,11 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               <Icon name="map" size={20} color="#FF6B35" />
               <Text style={styles.viewMapText}>View on Map</Text>
             </TouchableOpacity>
-          </Animatable.View>
+          </Animated.View>
         )}
 
         {/* Related Concepts */}
-        <Animatable.View animation="fadeInUp" delay={1300} style={styles.conceptsCard}>
+        <Animated.View entering={FadeInUp.delay(1300)} style={styles.conceptsCard}>
           <View style={styles.infoHeader}>
             <Icon name="school" size={24} color="#FF6B35" />
             <Text style={styles.infoTitle}>Related Concepts</Text>
@@ -242,10 +239,10 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               </>
             )}
           </View>
-        </Animatable.View>
+        </Animated.View>
 
         {/* Action Buttons */}
-        <Animatable.View animation="fadeInUp" delay={1500} style={styles.actionsContainer}>
+        <Animated.View entering={FadeInUp.delay(1500)} style={styles.actionsContainer}>
           <TouchableOpacity
             onPress={() => navigation.navigate('Quiz')}
             style={styles.actionButton}
@@ -277,7 +274,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               <Text style={styles.actionButtonText}>View Timeline</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </Animatable.View>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -464,6 +461,12 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+  },
+  locationNameText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: isDark ? '#fff' : '#333',
+    marginBottom: 5,
   },
   coordinatesText: {
     fontSize: 14,

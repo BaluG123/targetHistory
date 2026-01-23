@@ -12,6 +12,7 @@ export interface HistoricalEvent {
   longitude?: number;
   rulers?: string[];
   significance: string;
+  locationName?: string;
   imageUrl?: string;
 }
 

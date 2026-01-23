@@ -13,7 +13,7 @@ import { RootState } from '../store';
 import { updateStats, addExperience, addAchievement } from '../store/slices/userSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -71,12 +71,12 @@ const QuizResultScreen = ({ navigation }: any) => {
           colors={isDark ? ['#1F1F1F', '#121212'] : ['#2C3E50', '#000000']}
           style={styles.header}
         >
-          <Animatable.View animation="zoomIn" style={styles.rankBadge}>
+          <Animated.View entering={ZoomIn} style={styles.rankBadge}>
             <View style={[styles.rankIconContainer, { borderColor: rank.color }]}>
               <Icon name={rank.icon} size={50} color={rank.color} />
             </View>
             <Text style={[styles.rankLabel, { color: rank.color }]}>{rank.label}</Text>
-          </Animatable.View>
+          </Animated.View>
 
           <Text style={styles.congratText}>Quiz Conquest Complete</Text>
           <Text style={styles.scoreText}>{scorePercentage}%</Text>
@@ -101,7 +101,7 @@ const QuizResultScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          <Animatable.View animation="fadeInUp" delay={400} style={[styles.masteryCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+          <Animated.View entering={FadeInUp.delay(400)} style={[styles.masteryCard, isDark && { backgroundColor: '#1E1E1E' }]}>
             <Text style={[styles.cardTitle, isDark && { color: '#fff' }]}>Mastery Analysis</Text>
             <View style={styles.masteryRow}>
               <Text style={styles.masteryLabel}>Historical Accuracy</Text>
@@ -110,7 +110,7 @@ const QuizResultScreen = ({ navigation }: any) => {
               </View>
             </View>
             <Text style={styles.masteryNote}>Difficulty: {latestResult.difficulty.toUpperCase()} • {latestResult.region.toUpperCase()}</Text>
-          </Animatable.View>
+          </Animated.View>
 
           <TouchableOpacity
             onPress={() => navigation.navigate('QuizSetup')}

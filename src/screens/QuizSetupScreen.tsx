@@ -14,7 +14,7 @@ import { RootState } from '../store';
 import { setQuizSettings, startQuiz } from '../store/slices/quizSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInRight, FadeInUp } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -90,7 +90,7 @@ const QuizSetupScreen = ({ navigation }: any) => {
   };
 
   const renderDifficultyStep = () => (
-    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+    <Animated.View entering={FadeInRight.duration(400)} style={styles.stepContainer}>
       <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Pick your Challenge</Text>
       <Text style={styles.stepSubtitle}>How deep is your historical knowledge?</Text>
 
@@ -117,11 +117,11 @@ const QuizSetupScreen = ({ navigation }: any) => {
           )}
         </TouchableOpacity>
       ))}
-    </Animatable.View>
+    </Animated.View>
   );
 
   const renderGeographyStep = () => (
-    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+    <Animated.View entering={FadeInRight.duration(400)} style={styles.stepContainer}>
       <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Global or Local?</Text>
       <Text style={styles.stepSubtitle}>Select the arena of your trivia quest.</Text>
 
@@ -133,7 +133,7 @@ const QuizSetupScreen = ({ navigation }: any) => {
             style={styles.geoCardWrapper}
             activeOpacity={0.9}
           >
-            <Animatable.View
+            <Animated.View
               style={[
                 styles.geoCard,
                 selectedRegion === opt.value && styles.selectedGeoCard
@@ -148,7 +148,7 @@ const QuizSetupScreen = ({ navigation }: any) => {
                 <Icon name={opt.icon} size={40} color={selectedRegion === opt.value ? '#fff' : 'rgba(255,255,255,0.7)'} />
                 <Text style={styles.geoLabel}>{opt.label}</Text>
               </LinearGradient>
-            </Animatable.View>
+            </Animated.View>
           </TouchableOpacity>
         ))}
       </View>
@@ -156,11 +156,11 @@ const QuizSetupScreen = ({ navigation }: any) => {
         <Icon name="info" size={20} color="#FF6B35" />
         <Text style={styles.infoText}>Questions will be a mix of Ancient, Medieval, and Modern periods.</Text>
       </View>
-    </Animatable.View>
+    </Animated.View>
   );
 
   const renderParameterStep = () => (
-    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+    <Animated.View entering={FadeInRight.duration(400)} style={styles.stepContainer}>
       <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Set the Stakes</Text>
       <Text style={styles.stepSubtitle}>Adjust the volume and the clock.</Text>
 
@@ -208,7 +208,7 @@ const QuizSetupScreen = ({ navigation }: any) => {
           <Text style={[styles.summaryText, isDark && { color: '#888' }]}>{selectedDifficulty.toUpperCase()} • {selectedRegion === 'india' ? 'INDIA' : 'WORLD'} • MIXED</Text>
         </View>
       </View>
-    </Animatable.View>
+    </Animated.View>
   );
 
   return (

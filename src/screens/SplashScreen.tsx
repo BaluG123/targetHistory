@@ -7,7 +7,18 @@ import {
   StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, {
+  FadeInUp,
+  FadeIn,
+  BounceIn,
+  SlideInLeft,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+  useSharedValue,
+  withDelay
+} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Colors } from '../constants/Colors';
 
@@ -20,7 +31,7 @@ interface SplashScreenProps {
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   useEffect(() => {
     StatusBar.setHidden(true);
-    
+
     // Navigate to main app after 2 seconds
     const timer = setTimeout(() => {
       StatusBar.setHidden(false);
@@ -43,6 +54,36 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     { top: height * 0.6, right: width * 0.25 },
   ];
 
+  const PulseIcon = ({ iconName, delay }: any) => {
+    const scale = useSharedValue(1);
+    useEffect(() => {
+      scale.value = withDelay(delay, withRepeat(withSequence(withTiming(1.2, { duration: 1000 }), withTiming(1, { duration: 1000 })), -1));
+    }, []);
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }]
+    }));
+    return (
+      <Animated.View style={animatedStyle}>
+        <Icon name={iconName} size={24} color="rgba(255, 255, 255, 0.3)" />
+      </Animated.View>
+    );
+  };
+
+  const RotatingIcon = ({ iconName }: any) => {
+    const rotation = useSharedValue(0);
+    useEffect(() => {
+      rotation.value = withRepeat(withTiming(360, { duration: 3000 }), -1);
+    }, []);
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ rotate: `${rotation.value}deg` }]
+    }));
+    return (
+      <Animated.View style={animatedStyle}>
+        <Icon name={iconName} size={60} color={Colors.white} />
+      </Animated.View>
+    );
+  };
+
   return (
     <LinearGradient
       colors={Colors.gradients.sunset}
@@ -51,105 +92,69 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       end={{ x: 1, y: 1 }}
     >
       <StatusBar hidden />
-      
+
       {/* Background Particles */}
       {particleIcons.map((iconName, index) => (
-        <Animatable.View
+        <Animated.View
           key={index}
-          animation="fadeInUp"
-          delay={800 + index * 100}
-          duration={800}
+          entering={FadeInUp.delay(800 + index * 100).duration(800)}
           style={[
             styles.particle,
             particlePositions[index],
           ]}
         >
-          <Animatable.View
-            animation="pulse"
-            iterationCount="infinite"
-            duration={2000}
-            delay={index * 200}
-          >
-            <Icon
-              name={iconName}
-              size={24}
-              color="rgba(255, 255, 255, 0.3)"
-            />
-          </Animatable.View>
-        </Animatable.View>
+          <PulseIcon iconName={iconName} delay={index * 200} />
+        </Animated.View>
       ))}
 
       {/* Main Content */}
       <View style={styles.content}>
         {/* Logo Container */}
-        <Animatable.View
-          animation="bounceIn"
-          duration={1000}
-          delay={200}
+        <Animated.View
+          entering={BounceIn.delay(200).duration(1000)}
           style={styles.logoContainer}
         >
           <View style={styles.logoBackground}>
-            <Animatable.View
-              animation="rotate"
-              iterationCount="infinite"
-              duration={3000}
-              style={styles.iconContainer}
-            >
-              <Icon name="account_balance" size={60} color={Colors.white} />
-            </Animatable.View>
+            <RotatingIcon iconName="account_balance" />
           </View>
-        </Animatable.View>
+        </Animated.View>
 
         {/* Title */}
-        <Animatable.View
-          animation="fadeInUp"
-          duration={800}
-          delay={600}
+        <Animated.View
+          entering={FadeInUp.delay(600).duration(800)}
           style={styles.titleContainer}
         >
           <Text style={styles.title}>Target History</Text>
-          <Animatable.View
-            animation="slideInLeft"
-            duration={600}
-            delay={1000}
+          <Animated.View
+            entering={SlideInLeft.delay(1000).duration(600)}
             style={styles.titleUnderline}
           />
-        </Animatable.View>
+        </Animated.View>
 
         {/* Subtitle */}
-        <Animatable.View
-          animation="fadeIn"
-          duration={800}
-          delay={1200}
+        <Animated.View
+          entering={FadeIn.delay(1200).duration(800)}
           style={styles.subtitleContainer}
         >
           <Text style={styles.subtitle}>Journey Through Time</Text>
-          <Animatable.Text
-            animation="fadeIn"
-            delay={1400}
+          <Animated.Text
+            entering={FadeIn.delay(1400)}
             style={styles.tagline}
           >
             Discover • Learn • Explore
-          </Animatable.Text>
-        </Animatable.View>
+          </Animated.Text>
+        </Animated.View>
       </View>
 
       {/* Bottom Decoration */}
-      <Animatable.View
-        animation="fadeInUp"
-        delay={1600}
+      <Animated.View
+        entering={FadeInUp.delay(1600)}
         style={styles.bottomDecoration}
       >
         <View style={styles.decorationLine} />
-        <Animatable.View
-          animation="pulse"
-          iterationCount="infinite"
-          duration={1500}
-        >
-          <Icon name="history" size={20} color="rgba(255, 255, 255, 0.7)" />
-        </Animatable.View>
+        <PulseIcon iconName="history" delay={0} />
         <View style={styles.decorationLine} />
-      </Animatable.View>
+      </Animated.View>
     </LinearGradient>
   );
 };

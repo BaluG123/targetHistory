@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 const getCategoryColor = (category: string) => {
   switch (category) {
@@ -35,9 +35,8 @@ const EventCard = ({ item, index, navigation, styles, isDark, favorites }: any) 
     onPress={() => navigation.navigate('EventDetail', { event: item })}
     activeOpacity={0.8}
   >
-    <Animatable.View
-      animation="fadeInUp"
-      delay={index * 100}
+    <Animated.View
+      entering={FadeInUp.delay(index * 100)}
       style={styles.eventCard}
     >
       <LinearGradient
@@ -92,7 +91,7 @@ const EventCard = ({ item, index, navigation, styles, isDark, favorites }: any) 
           <Icon name="arrow-forward" size={20} color="#FF6B35" />
         </View>
       </LinearGradient>
-    </Animatable.View>
+    </Animated.View>
   </TouchableOpacity>
 );
 
@@ -118,8 +117,8 @@ const EventsScreen = ({ navigation }: any) => {
 
   const filteredAndSortedEvents = history.events
     .filter(event => {
-      const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = (event.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (event.description?.toLowerCase() || '').includes(searchQuery.toLowerCase());
       const matchesRegion = filterRegion === 'all' || event.region === filterRegion;
       return matchesSearch && matchesRegion;
     })

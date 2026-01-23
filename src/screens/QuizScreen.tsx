@@ -26,8 +26,10 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   Layout,
+  FadeInUp,
+  FadeInDown,
+  BounceIn,
 } from 'react-native-reanimated';
-import * as Animatable from 'react-native-animatable';
 
 const { width } = Dimensions.get('window');
 
@@ -153,7 +155,7 @@ const QuizScreen = ({ navigation }: any) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Animatable.View animation="fadeInDown" duration={500} style={[styles.questionCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+        <Animated.View entering={FadeInDown.duration(500)} style={[styles.questionCard, isDark && { backgroundColor: '#1E1E1E' }]}>
           <View style={styles.qHeader}>
             <View style={styles.qMeta}>
               <Zap size={14} color="#FF6B35" />
@@ -163,7 +165,7 @@ const QuizScreen = ({ navigation }: any) => {
             <Text style={styles.qCategory}>{currentQuestion.category.toUpperCase()}</Text>
           </View>
           <Text style={[styles.questionText, isDark && { color: '#fff' }]}>{currentQuestion.question}</Text>
-        </Animatable.View>
+        </Animated.View>
 
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option, index) => {
@@ -188,11 +190,9 @@ const QuizScreen = ({ navigation }: any) => {
             }
 
             return (
-              <Animatable.View
+              <Animated.View
                 key={index}
-                animation="fadeInUp"
-                delay={index * 100}
-                duration={400}
+                entering={FadeInUp.delay(index * 100).duration(400)}
               >
                 <TouchableOpacity
                   onPress={() => handleAnswerSelect(index)}
@@ -209,19 +209,19 @@ const QuizScreen = ({ navigation }: any) => {
                   {showExplanation && isCorrect && <CheckCircle2 size={20} color="#4CAF50" />}
                   {showExplanation && isWrong && <XCircle size={20} color="#F44336" />}
                 </TouchableOpacity>
-              </Animatable.View>
+              </Animated.View>
             );
           })}
         </View>
 
         {showExplanation && (
-          <Animatable.View animation="bounceIn" duration={600} style={styles.exBox}>
+          <Animated.View entering={BounceIn.duration(600)} style={styles.exBox}>
             <View style={styles.exHeader}>
               <Info size={16} color="#FF6B35" />
               <Text style={styles.exTitle}>Insight</Text>
             </View>
             <Text style={styles.exText}>{currentQuestion.explanation}</Text>
-          </Animatable.View>
+          </Animated.View>
         )}
       </ScrollView>
 

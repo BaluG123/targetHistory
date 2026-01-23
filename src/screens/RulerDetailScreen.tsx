@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 const formatReign = (start: number, end: number) => {
   const formatYear = (year: number) => {
@@ -45,17 +45,17 @@ const RulerDetailScreen = ({ route, navigation }: any) => {
           <Icon name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Animatable.View animation="fadeInDown" delay={300} style={styles.rulerInfo}>
+        <Animated.View entering={FadeInDown.delay(300)} style={styles.rulerInfo}>
           <Icon name="account-circle" size={60} color="#fff" />
           <Text style={styles.rulerName}>{ruler.name}</Text>
           <Text style={styles.rulerDynasty}>{ruler.dynasty}</Text>
           <Text style={styles.rulerReign}>{formatReign(ruler.reignStart, ruler.reignEnd)}</Text>
-        </Animatable.View>
+        </Animated.View>
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Reign Summary */}
-        <Animatable.View animation="fadeInUp" delay={500} style={styles.summaryCard}>
+        <Animated.View entering={FadeInUp.delay(500)} style={styles.summaryCard}>
           <Text style={styles.cardTitle}>Reign Summary</Text>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Duration:</Text>
@@ -69,10 +69,10 @@ const RulerDetailScreen = ({ route, navigation }: any) => {
             <Text style={styles.summaryLabel}>Region:</Text>
             <Text style={styles.summaryValue}>{ruler.region}</Text>
           </View>
-        </Animatable.View>
+        </Animated.View>
 
         {/* Achievements */}
-        <Animatable.View animation="fadeInUp" delay={700} style={styles.achievementsCard}>
+        <Animated.View entering={FadeInUp.delay(700)} style={styles.achievementsCard}>
           <View style={styles.cardHeader}>
             <Icon name="star" size={24} color="#FF6B35" />
             <Text style={styles.cardTitle}>Major Achievements</Text>
@@ -83,10 +83,10 @@ const RulerDetailScreen = ({ route, navigation }: any) => {
               <Text style={styles.achievementText}>{achievement}</Text>
             </View>
           ))}
-        </Animatable.View>
+        </Animated.View>
 
         {/* Coming Soon Features */}
-        <Animatable.View animation="fadeInUp" delay={900} style={styles.comingSoonCard}>
+        <Animated.View entering={FadeInUp.delay(900)} style={styles.comingSoonCard}>
           <Text style={styles.cardTitle}>Coming Soon</Text>
           <View style={styles.featureItem}>
             <Icon name="timeline" size={20} color="#666" />
@@ -104,7 +104,7 @@ const RulerDetailScreen = ({ route, navigation }: any) => {
             <Icon name="book" size={20} color="#666" />
             <Text style={styles.featureText}>Historical Sources</Text>
           </View>
-        </Animatable.View>
+        </Animated.View>
       </ScrollView>
     </View>
   );

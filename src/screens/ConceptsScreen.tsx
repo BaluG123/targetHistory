@@ -13,7 +13,7 @@ import { RootState } from '../store';
 import { timeSystemExplanation } from '../data/historicalData';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 interface Concept {
   id: string;
@@ -25,6 +25,51 @@ interface Concept {
   examples?: string[];
   relatedConcepts?: string[];
 }
+
+const CategoryButton = ({ category, selectedCategory, onSelect, styles }: { category: any, selectedCategory: string, onSelect: (id: string) => void, styles: any }) => (
+  <TouchableOpacity
+    onPress={() => onSelect(category.id)}
+    style={[
+      styles.categoryButton,
+      selectedCategory === category.id && styles.activeCategoryButton
+    ]}
+  >
+    <Icon
+      name={category.icon}
+      size={14}
+      color={selectedCategory === category.id ? '#fff' : '#666'}
+    />
+    <Text style={[
+      styles.categoryButtonText,
+      selectedCategory === category.id && styles.activeCategoryButtonText
+    ]}>
+      {category.label}
+    </Text>
+  </TouchableOpacity>
+);
+
+const ConceptCard = ({ concept, onSelect, styles, getDifficultyColor, index }: { concept: Concept, onSelect: (concept: Concept) => void, styles: any, getDifficultyColor: (diff: string) => string, index: number }) => (
+  <TouchableOpacity
+    onPress={() => onSelect(concept)}
+    activeOpacity={0.8}
+  >
+    <Animated.View entering={FadeInUp.delay(index * 100)} style={styles.conceptCard}>
+      <View style={styles.conceptHeader}>
+        <Text style={styles.conceptTitle}>{concept.title}</Text>
+        <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(concept.difficulty) }]}>
+          <Text style={styles.difficultyText}>{concept.difficulty}</Text>
+        </View>
+      </View>
+      <Text style={styles.conceptDescription}>{concept.description}</Text>
+      <View style={styles.conceptFooter}>
+        <View style={[styles.categoryTag, { backgroundColor: '#FF6B35' }]}>
+          <Text style={styles.categoryTagText}>{concept.category}</Text>
+        </View>
+        <Icon name="arrow-forward" size={20} color="#FF6B35" />
+      </View>
+    </Animated.View>
+  </TouchableOpacity>
+);
 
 const ConceptsScreen = () => {
   const { user } = useSelector((state: RootState) => state);
@@ -248,7 +293,7 @@ const ConceptsScreen = () => {
 
   const filteredConcepts = concepts.filter(concept => {
     const matchesSearch = concept.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      concept.description.toLowerCase().includes(searchQuery.toLowerCase());
+      (concept.description?.toLowerCase() || '').includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || concept.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -280,375 +325,337 @@ const ConceptsScreen = () => {
     );
   };
 
-  const CategoryButton = ({ category, selectedCategory, onSelect, styles }: { category: any, selectedCategory: string, onSelect: (id: string) => void, styles: any }) => (
-    <TouchableOpacity
-      onPress={() => onSelect(category.id)}
-      style={[
-        styles.categoryButton,
-        selectedCategory === category.id && styles.activeCategoryButton
-      ]}
-    >
-      <Icon
-        name={category.icon}
-        size={16}
-        color={selectedCategory === category.id ? '#fff' : '#666'}
-      />
-      <Text style={[
-        styles.categoryButtonText,
-        selectedCategory === category.id && styles.activeCategoryButtonText
-      ]}>
-        {category.label}
-      </Text>
-    </TouchableOpacity>
-  );
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <LinearGradient
+        colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>Historical Concepts</Text>
+        <Text style={styles.headerSubtitle}>Master key historical terms and ideas</Text>
+      </LinearGradient>
 
-  const ConceptCard = ({ concept, onSelect, styles, getDifficultyColor }: { concept: Concept, onSelect: (concept: Concept) => void, styles: any, getDifficultyColor: (diff: string) => string }) => (
-    <TouchableOpacity
-      onPress={() => onSelect(concept)}
-      activeOpacity={0.8}
-    >
-      <Animatable.View animation="fadeInUp" style={styles.conceptCard}>
-        <View style={styles.conceptHeader}>
-          <Text style={styles.conceptTitle}>{concept.title}</Text>
-          <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(concept.difficulty) }]}>
-            <Text style={styles.difficultyText}>{concept.difficulty}</Text>
-          </View>
-        </View>
-        <Text style={styles.conceptDescription}>{concept.description}</Text>
-        <View style={styles.conceptFooter}>
-          <View style={[styles.categoryTag, { backgroundColor: '#FF6B35' }]}>
-            <Text style={styles.categoryTagText}>{concept.category}</Text>
-          </View>
-          <Icon name="arrow-forward" size={20} color="#FF6B35" />
-        </View>
-      </Animatable.View>
-    </TouchableOpacity>
-  );
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search concepts..."
+          placeholderTextColor="#666"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
 
-  const ConceptsScreen = () => {
-
-    return (
-      <View style={styles.container}>
-        {/* Header */}
-        <LinearGradient
-          colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
-          style={styles.header}
-        >
-          <Text style={styles.headerTitle}>Historical Concepts</Text>
-          <Text style={styles.headerSubtitle}>Master key historical terms and ideas</Text>
-        </LinearGradient>
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search concepts..."
-            placeholderTextColor="#666"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+      {/* Categories */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+        {categories.map(category => (
+          <CategoryButton
+            key={category.id}
+            category={category}
+            selectedCategory={selectedCategory}
+            onSelect={setSelectedCategory}
+            styles={styles}
           />
-        </View>
+        ))}
+      </ScrollView>
 
-        {/* Categories */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-          {categories.map(category => (
-            <CategoryButton
-              key={category.id}
-              category={category}
-              selectedCategory={selectedCategory}
-              onSelect={setSelectedCategory}
-              styles={styles}
-            />
-          ))}
-        </ScrollView>
+      {/* Concepts List */}
+      <ScrollView
+        style={styles.conceptsList}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
+        {filteredConcepts.map((concept, index) => (
+          <ConceptCard
+            key={concept.id}
+            concept={concept}
+            index={index}
+            onSelect={(c) => {
+              setSelectedConcept(c);
+              setModalVisible(true);
+            }}
+            styles={styles}
+            getDifficultyColor={getDifficultyColor}
+          />
+        ))}
+      </ScrollView>
 
-        {/* Concepts List */}
-        <ScrollView style={styles.conceptsList} showsVerticalScrollIndicator={false}>
-          {filteredConcepts.map(concept => (
-            <ConceptCard
-              key={concept.id}
-              concept={concept}
-              onSelect={(c) => {
-                setSelectedConcept(c);
-                setModalVisible(true);
-              }}
-              styles={styles}
-              getDifficultyColor={getDifficultyColor}
-            />
-          ))}
-        </ScrollView>
+      {/* Concept Detail Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{selectedConcept?.title}</Text>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Icon name="close" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
 
-        {/* Concept Detail Modal */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedConcept?.title}</Text>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Icon name="close" size={24} color="#666" />
-                </TouchableOpacity>
-              </View>
-
-              {selectedConcept && (
-                <ScrollView style={styles.modalBody}>
-                  <View style={styles.conceptMeta}>
-                    <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(selectedConcept.difficulty) }]}>
-                      <Text style={styles.difficultyText}>{selectedConcept.difficulty}</Text>
-                    </View>
-                    <View style={[styles.categoryTag, { backgroundColor: '#FF6B35' }]}>
-                      <Text style={styles.categoryTagText}>{selectedConcept.category}</Text>
-                    </View>
+            {selectedConcept && (
+              <ScrollView style={styles.modalBody}>
+                <View style={styles.conceptMeta}>
+                  <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(selectedConcept.difficulty) }]}>
+                    <Text style={styles.difficultyText}>{selectedConcept.difficulty}</Text>
                   </View>
+                  <View style={[styles.categoryTag, { backgroundColor: '#FF6B35' }]}>
+                    <Text style={styles.categoryTagText}>{selectedConcept.category}</Text>
+                  </View>
+                </View>
 
-                  {renderFormattedText(selectedConcept.content, styles.conceptContent)}
+                {renderFormattedText(selectedConcept.content, styles.conceptContent)}
 
-                  {selectedConcept.examples && selectedConcept.examples.length > 0 && (
-                    <View style={styles.examplesContainer}>
-                      <Text style={styles.sectionTitle}>Examples:</Text>
-                      {selectedConcept.examples.map((example, index) => (
-                        <Text key={index} style={styles.exampleText}>• {example}</Text>
+                {selectedConcept.examples && selectedConcept.examples.length > 0 && (
+                  <View style={styles.examplesContainer}>
+                    <Text style={styles.sectionTitle}>Examples:</Text>
+                    {selectedConcept.examples.map((example, index) => (
+                      <Text key={index} style={styles.exampleText}>• {example}</Text>
+                    ))}
+                  </View>
+                )}
+
+                {selectedConcept.relatedConcepts && selectedConcept.relatedConcepts.length > 0 && (
+                  <View style={styles.relatedContainer}>
+                    <Text style={styles.sectionTitle}>Related Concepts:</Text>
+                    <View style={styles.relatedTags}>
+                      {selectedConcept.relatedConcepts.map((related, index) => (
+                        <View key={index} style={styles.relatedTag}>
+                          <Text style={styles.relatedTagText}>{related}</Text>
+                        </View>
                       ))}
                     </View>
-                  )}
-
-                  {selectedConcept.relatedConcepts && selectedConcept.relatedConcepts.length > 0 && (
-                    <View style={styles.relatedContainer}>
-                      <Text style={styles.sectionTitle}>Related Concepts:</Text>
-                      <View style={styles.relatedTags}>
-                        {selectedConcept.relatedConcepts.map((related, index) => (
-                          <View key={index} style={styles.relatedTag}>
-                            <Text style={styles.relatedTagText}>{related}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-                </ScrollView>
-              )}
-            </View>
+                  </View>
+                )}
+              </ScrollView>
+            )}
           </View>
-        </Modal>
-      </View>
-    );
-  };
-
-  const createStyles = (isDark: boolean) => StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#121212' : '#f5f5f5',
-    },
-    header: {
-      padding: 20,
-      paddingTop: 50,
-      borderBottomLeftRadius: 20,
-      borderBottomRightRadius: 20,
-    },
-    headerTitle: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: '#fff',
-    },
-    headerSubtitle: {
-      fontSize: 14,
-      color: '#fff',
-      opacity: 0.8,
-      marginTop: 5,
-    },
-    searchContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#1E1E1E' : '#fff',
-      margin: 20,
-      borderRadius: 25,
-      paddingHorizontal: 15,
-      elevation: 3,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-    },
-    searchIcon: {
-      marginRight: 10,
-    },
-    searchInput: {
-      flex: 1,
-      height: 50,
-      fontSize: 16,
-      color: isDark ? '#fff' : '#333',
-    },
-    categoriesContainer: {
-      paddingHorizontal: 20,
-      marginBottom: 20,
-    },
-    categoryButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 16,
-      backgroundColor: isDark ? '#2C2C2C' : '#e0e0e0',
-      marginRight: 8,
-    },
-    activeCategoryButton: {
-      backgroundColor: '#FF6B35',
-    },
-    categoryButtonText: {
-      marginLeft: 6,
-      fontSize: 12,
-      color: isDark ? '#fff' : '#666',
-    },
-    activeCategoryButtonText: {
-      color: '#fff',
-      fontWeight: '600',
-    },
-    conceptsList: {
-      flex: 1,
-      paddingHorizontal: 20,
-    },
-    conceptCard: {
-      backgroundColor: isDark ? '#1E1E1E' : '#fff',
-      borderRadius: 15,
-      padding: 20,
-      marginBottom: 15,
-      elevation: 3,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-    },
-    conceptHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: 10,
-    },
-    conceptTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: isDark ? '#fff' : '#333',
-      flex: 1,
-      marginRight: 10,
-    },
-    difficultyBadge: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 12,
-    },
-    difficultyText: {
-      fontSize: 10,
-      color: '#fff',
-      fontWeight: '600',
-      textTransform: 'capitalize',
-    },
-    conceptDescription: {
-      fontSize: 14,
-      color: isDark ? '#ccc' : '#666',
-      lineHeight: 20,
-      marginBottom: 15,
-    },
-    conceptFooter: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    categoryTag: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 12,
-    },
-    categoryTagText: {
-      fontSize: 10,
-      color: '#fff',
-      fontWeight: '600',
-      textTransform: 'capitalize',
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'flex-end',
-    },
-    modalContent: {
-      backgroundColor: isDark ? '#1E1E1E' : '#fff',
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '90%',
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#333' : '#e0e0e0',
-    },
-    modalTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: isDark ? '#fff' : '#333',
-      flex: 1,
-    },
-    closeButton: {
-      padding: 5,
-    },
-    modalBody: {
-      padding: 20,
-    },
-    conceptMeta: {
-      flexDirection: 'row',
-      marginBottom: 20,
-    },
-    conceptContent: {
-      fontSize: 16,
-      color: isDark ? '#ccc' : '#666',
-      lineHeight: 24,
-      marginBottom: 20,
-    },
-    examplesContainer: {
-      marginBottom: 20,
-    },
-    sectionTitle: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: isDark ? '#fff' : '#333',
-      marginBottom: 10,
-    },
-    exampleText: {
-      fontSize: 14,
-      color: isDark ? '#ccc' : '#666',
-      marginBottom: 5,
-      paddingLeft: 10,
-    },
-    relatedContainer: {
-      marginBottom: 20,
-    },
-    relatedTags: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-    },
-    relatedTag: {
-      backgroundColor: '#FF6B35',
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 15,
-      marginRight: 8,
-      marginBottom: 8,
-    },
-    relatedTagText: {
-      fontSize: 12,
-      color: '#fff',
-      fontWeight: '600',
-    },
-  });
-
+        </View>
+      </Modal>
+    </View>
+  );
 };
+
+const createStyles = (isDark: boolean) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: isDark ? '#121212' : '#f5f5f5',
+  },
+  header: {
+    padding: 20,
+    paddingTop: 50,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#fff',
+    opacity: 0.8,
+    marginTop: 5,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: isDark ? '#1E1E1E' : '#fff',
+    margin: 20,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 50,
+    fontSize: 16,
+    color: isDark ? '#fff' : '#333',
+  },
+  categoriesContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 10,
+    maxHeight: 40,
+  },
+  categoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    backgroundColor: isDark ? '#2C2C2C' : '#f0f0f0',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: isDark ? '#333' : '#e0e0e0',
+    height: 32,
+  },
+  activeCategoryButton: {
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
+  },
+  categoryButtonText: {
+    marginLeft: 6,
+    fontSize: 12,
+    color: isDark ? '#fff' : '#666',
+    fontWeight: '500',
+  },
+  activeCategoryButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  conceptsList: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  conceptCard: {
+    backgroundColor: isDark ? '#1E1E1E' : '#fff',
+    borderRadius: 15,
+    padding: 20,
+    marginBottom: 15,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  conceptHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  conceptTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: isDark ? '#fff' : '#333',
+    flex: 1,
+    marginRight: 10,
+  },
+  difficultyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  difficultyText: {
+    fontSize: 10,
+    color: '#fff',
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  conceptDescription: {
+    fontSize: 14,
+    color: isDark ? '#ccc' : '#666',
+    lineHeight: 20,
+    marginBottom: 15,
+  },
+  conceptFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoryTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  categoryTagText: {
+    fontSize: 10,
+    color: '#fff',
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: isDark ? '#1E1E1E' : '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: isDark ? '#333' : '#e0e0e0',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: isDark ? '#fff' : '#333',
+    flex: 1,
+  },
+  closeButton: {
+    padding: 5,
+  },
+  modalBody: {
+    padding: 20,
+  },
+  conceptMeta: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  conceptContent: {
+    fontSize: 16,
+    color: isDark ? '#ccc' : '#666',
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  examplesContainer: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: isDark ? '#fff' : '#333',
+    marginBottom: 10,
+  },
+  exampleText: {
+    fontSize: 14,
+    color: isDark ? '#ccc' : '#666',
+    marginBottom: 5,
+    paddingLeft: 10,
+  },
+  relatedContainer: {
+    marginBottom: 20,
+  },
+  relatedTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  relatedTag: {
+    backgroundColor: '#FF6B35',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  relatedTagText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
 
 export default ConceptsScreen;

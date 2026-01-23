@@ -12,6 +12,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 27.1767,
     longitude: 78.0081,
+    locationName: 'Indus Valley (Agra region)',
     significance: 'First major civilization in the Indian subcontinent with advanced urban planning.',
     imageUrl: 'https://example.com/indus-valley.jpg'
   },
@@ -25,6 +26,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 25.4358,
     longitude: 81.8463,
+    locationName: 'Prayagraj, Uttar Pradesh',
     significance: 'Emergence of kingdoms, social stratification, and early political institutions.'
   },
   {
@@ -37,6 +39,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 31.1471,
     longitude: 75.3412,
+    locationName: 'Punjab Region',
     significance: 'Composition of the Rigveda, the oldest sacred text of Hinduism.',
   },
   {
@@ -49,6 +52,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 25.9986,
     longitude: 85.668,
+    locationName: 'Vaishali, Bihar',
     significance: 'Strengthened Jainism as a major Shramana tradition promoting non-violence.'
   },
   {
@@ -61,6 +65,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 27.4765,
     longitude: 83.276,
+    locationName: 'Lumbini (Ancient India)',
     significance: 'His teachings laid the foundation of Buddhism, a key Indian and world religion.'
   },
   {
@@ -97,6 +102,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 25.5941,
     longitude: 85.1376,
+    locationName: 'Pataliputra (Patna)',
     rulers: ['Chandragupta Maurya'],
     significance: 'First unified empire covering most of the Indian subcontinent.',
   },
@@ -110,6 +116,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 25.5941,
     longitude: 85.1376,
+    locationName: 'Pataliputra (Patna)',
     significance: 'Provided one of the earliest foreign accounts of Indian polity and society.'
   },
   {
@@ -122,6 +129,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 20.9517,
     longitude: 85.0985,
+    locationName: 'Kalinga (Bhubaneswar region)',
     rulers: ['Ashoka'],
     significance: 'Marked Ashoka\'s transformation and spread of Buddhism.',
   },
@@ -135,6 +143,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 23.322,
     longitude: 77.225,
+    locationName: 'Sanchi, Madhya Pradesh',
     significance: 'Earliest deciphered royal inscriptions of India and key source on Mauryan governance.'
   },
   {
@@ -147,6 +156,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 32.5833,
     longitude: 73.5833,
+    locationName: 'Jhelum River (Modern Pakistan)',
     significance: 'First major contact between India and the Western world.',
   },
   {
@@ -171,6 +181,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 25.4484,
     longitude: 82.8536,
+    locationName: 'Prayagraj/Varanasi region',
     significance: 'Often called the "Golden Age of India" for advancements in science and arts.',
   },
   {
@@ -221,6 +232,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 28.7041,
     longitude: 77.1025,
+    locationName: 'Delhi, India',
     rulers: ['Qutb-ud-din Aibak'],
     significance: 'Beginning of sustained Muslim political power in India.',
   },
@@ -234,6 +246,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 28.5244,
     longitude: 77.1855,
+    locationName: 'Mehrauli, Delhi',
     significance: 'Symbol of early Delhi Sultanate architecture and Islamic presence in North India.'
   },
   {
@@ -270,6 +283,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 15.335,
     longitude: 76.46,
+    locationName: 'Hampi, Karnataka',
     significance: 'A major center of South Indian culture and the capital of one of the richest empires.',
   },
   {
@@ -318,6 +332,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 29.3909,
     longitude: 76.9635,
+    locationName: 'Panipat, Haryana',
     rulers: ['Babur'],
     significance: 'Beginning of the Mughal dynasty that would rule India for over 300 years.',
   },
@@ -331,6 +346,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'india',
     latitude: 27.1751,
     longitude: 78.0421,
+    locationName: 'Agra, Uttar Pradesh',
     significance: 'Masterpiece of Mughal architecture and major symbol of India.'
   },
   {
@@ -539,6 +555,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 26.8206,
     longitude: 30.8025,
+    locationName: 'Giza/Cairo region, Egypt',
     significance: 'Beginning of one of the world\'s longest-lasting civilizations.',
   },
   {
@@ -551,6 +568,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 32.5364,
     longitude: 44.4200,
+    locationName: 'Babylon (Modern Iraq)',
     significance: 'Early example of written law and state authority in Mesopotamia.'
   },
   {
@@ -563,6 +581,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 37.9838,
     longitude: 23.7275,
+    locationName: 'Athens, Greece',
     significance: 'Laid foundations of democratic governance and Western political thought.'
   },
   {
@@ -575,6 +594,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 41.9028,
     longitude: 12.4964,
+    locationName: 'Rome, Italy',
     rulers: ['Augustus'],
     significance: 'Beginning of the Roman Empire that would dominate the Mediterranean for centuries.',
   },
@@ -590,6 +610,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 41.0082,
     longitude: 28.9784,
+    locationName: 'Istanbul (Constantinople), Turkey',
     significance: 'End of the Byzantine Empire and rise of Ottoman power.',
   },
   {
@@ -602,6 +623,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 51.5074,
     longitude: -0.1278,
+    locationName: 'Runnymede, England',
     significance: 'Early step towards constitutional government and rule of law in Europe.'
   },
   {
@@ -614,6 +636,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 48.8566,
     longitude: 2.3522,
+    locationName: 'Europe (Generic)',
     significance: 'Triggered social, economic, and religious changes in medieval Europe.'
   },
 
@@ -628,6 +651,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 48.8566,
     longitude: 2.3522,
+    locationName: 'Paris, France',
     significance: 'Marked the beginning of modern democratic movements worldwide.',
   },
   {
@@ -640,6 +664,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 38.9072,
     longitude: -77.0369,
+    locationName: 'Philadelphia/Washington D.C., USA',
     significance: 'Led to the creation of the United States and inspired later independence movements.'
   },
   {
@@ -652,6 +677,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 52.4862,
     longitude: -1.8904,
+    locationName: 'Great Britain',
     significance: 'Transformed economies, societies, and technology worldwide.'
   },
   {
@@ -688,6 +714,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 52.52,
     longitude: 13.405,
+    locationName: 'Berlin/Global',
     significance: 'Led to UN formation, decolonisation waves, and a bipolar world order.'
   },
   {
@@ -700,6 +727,7 @@ export const historicalEvents: HistoricalEvent[] = [
     region: 'world',
     latitude: 40.7128,
     longitude: -74.006,
+    locationName: 'New York, USA',
     significance: 'Became the main global forum for diplomacy and conflict resolution.'
   },
   {
