@@ -49,6 +49,7 @@ const QuizScreen = ({ navigation }: any) => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
+          clearInterval(timer);
           handleTimeUp();
           return 0;
         }
@@ -58,7 +59,7 @@ const QuizScreen = ({ navigation }: any) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [dispatch]);
+  }, []);
 
   const handleTimeUp = () => {
     Alert.alert(
