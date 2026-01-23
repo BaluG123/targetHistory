@@ -248,7 +248,7 @@ const ConceptsScreen = () => {
 
   const filteredConcepts = concepts.filter(concept => {
     const matchesSearch = concept.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         concept.description.toLowerCase().includes(searchQuery.toLowerCase());
+      concept.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || concept.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -262,6 +262,24 @@ const ConceptsScreen = () => {
     }
   };
 
+  const renderFormattedText = (text: string, style: any) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return (
+      <Text style={style}>
+        {parts.map((part, index) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return (
+              <Text key={index} style={{ fontWeight: 'bold' }}>
+                {part.slice(2, -2)}
+              </Text>
+            );
+          }
+          return part;
+        })}
+      </Text>
+    );
+  };
+
   const CategoryButton = ({ category }: { category: any }) => (
     <TouchableOpacity
       onPress={() => setSelectedCategory(category.id)}
@@ -270,10 +288,10 @@ const ConceptsScreen = () => {
         selectedCategory === category.id && styles.activeCategoryButton
       ]}
     >
-      <Icon 
-        name={category.icon} 
-        size={20} 
-        color={selectedCategory === category.id ? '#fff' : '#666'} 
+      <Icon
+        name={category.icon}
+        size={16}
+        color={selectedCategory === category.id ? '#fff' : '#666'}
       />
       <Text style={[
         styles.categoryButtonText,
@@ -365,7 +383,7 @@ const ConceptsScreen = () => {
                 <Icon name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
-            
+
             {selectedConcept && (
               <ScrollView style={styles.modalBody}>
                 <View style={styles.conceptMeta}>
@@ -377,7 +395,7 @@ const ConceptsScreen = () => {
                   </View>
                 </View>
 
-                <Text style={styles.conceptContent}>{selectedConcept.content}</Text>
+                {renderFormattedText(selectedConcept.content, styles.conceptContent)}
 
                 {selectedConcept.examples && selectedConcept.examples.length > 0 && (
                   <View style={styles.examplesContainer}>
@@ -460,18 +478,18 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     backgroundColor: isDark ? '#2C2C2C' : '#e0e0e0',
-    marginRight: 10,
+    marginRight: 8,
   },
   activeCategoryButton: {
     backgroundColor: '#FF6B35',
   },
   categoryButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
+    marginLeft: 6,
+    fontSize: 12,
     color: isDark ? '#fff' : '#666',
   },
   activeCategoryButtonText: {

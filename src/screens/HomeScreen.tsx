@@ -174,7 +174,7 @@ const HomeScreen = ({ navigation }: any) => {
               description="Fresh questions every day"
               icon={Zap}
               gradient={Colors.gradients.royal}
-              onPress={() => navigation.navigate('QuizSetup')}
+              onPress={() => navigation.navigate('Quiz', { screen: 'QuizSetup' })}
               delay={500}
             />
             <FeatureCard
@@ -182,7 +182,7 @@ const HomeScreen = ({ navigation }: any) => {
               description="Geo-political evolution"
               icon={MapIcon}
               gradient={Colors.gradients.ocean}
-              onPress={() => navigation.navigate('Map')}
+              onPress={() => navigation.navigate('Explore', { screen: 'Map' })}
               delay={600}
             />
             <FeatureCard
@@ -198,7 +198,7 @@ const HomeScreen = ({ navigation }: any) => {
               description="Deep dive into notes"
               icon={BookMarked}
               gradient={['#4568DC', '#B06AB3']}
-              onPress={() => { }}
+              onPress={() => navigation.navigate('Explore', { screen: 'Concepts' })}
               delay={800}
             />
           </View>

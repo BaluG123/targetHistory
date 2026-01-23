@@ -133,7 +133,7 @@ const ExploreScreen = ({ navigation }: any) => {
               title="Master Library"
               icon={BookOpen}
               gradient={Colors.gradients.royal}
-              onPress={() => { }}
+              onPress={() => navigation.navigate('Concepts')}
               index={3}
             />
           </View>
