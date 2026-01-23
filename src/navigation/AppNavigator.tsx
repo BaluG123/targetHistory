@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Colors, getThemeColors } from '../constants/Colors';
+import SplashScreen from '../screens/SplashScreen';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -45,9 +46,18 @@ const ExploreStack = () => (
 );
 
 const AppNavigator = () => {
+  const [showSplash, setShowSplash] = useState(true);
   const theme = useSelector((state: RootState) => state.user.preferences.theme);
   const isDark = theme === 'dark';
   const themeColors = getThemeColors(isDark);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return <SplashScreen onFinish={handleSplashFinish} />;
+  }
 
   const getTabBarIcon = (routeName: string, focused: boolean, color: string, size: number) => {
     let iconName: string;
