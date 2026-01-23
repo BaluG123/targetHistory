@@ -34,11 +34,45 @@ import { Colors, getThemeColors } from '../constants/Colors';
 
 const { width } = Dimensions.get('window');
 
+const QuickStatsCard = ({ title, value, icon: IconComponent, color, styles }: any) => (
+  <View style={[styles.statsCard, { borderLeftColor: color }]}>
+    <View style={styles.statsContent}>
+      <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
+        <IconComponent size={20} color={color} />
+      </View>
+      <View style={styles.statsText}>
+        <Text style={styles.statsValue}>{value}</Text>
+        <Text style={styles.statsTitle}>{title}</Text>
+      </View>
+    </View>
+  </View>
+);
+
+const FeatureCard = ({ title, description, icon: IconComponent, gradient, onPress, delay, styles }: any) => (
+  <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.featureCardContainer}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <LinearGradient
+        colors={gradient}
+        style={styles.featureCard}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.featureIconContainer}>
+          <IconComponent size={24} color={Colors.white} />
+        </View>
+        <Text style={styles.featureTitle}>{title}</Text>
+        <Text style={styles.featureDescription}>{description}</Text>
+        <View style={styles.featureAction}>
+          <ChevronRight size={14} color={Colors.white} />
+        </View>
+      </LinearGradient>
+    </TouchableOpacity>
+  </Animated.View>
+);
+
 const HomeScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state: RootState) => state);
-  const theme = user.preferences.theme;
-
+  const user = useSelector((state: RootState) => state.user);
   useEffect(() => {
     dispatch(setEvents(historicalEvents));
     dispatch(setPeriods(historicalPeriods));
@@ -46,45 +80,9 @@ const HomeScreen = ({ navigation }: any) => {
     dispatch(setQuestions(quizQuestions));
   }, [dispatch]);
 
-  const isDark = theme === 'dark';
+  const isDark = user.preferences.theme === 'dark';
   const themeColors = getThemeColors(isDark);
   const styles = createStyles(isDark, themeColors);
-
-  const QuickStatsCard = ({ title, value, icon: IconComponent, color }: any) => (
-    <View style={[styles.statsCard, { borderLeftColor: color }]}>
-      <View style={styles.statsContent}>
-        <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
-          <IconComponent size={20} color={color} />
-        </View>
-        <View style={styles.statsText}>
-          <Text style={styles.statsValue}>{value}</Text>
-          <Text style={styles.statsTitle}>{title}</Text>
-        </View>
-      </View>
-    </View>
-  );
-
-  const FeatureCard = ({ title, description, icon: IconComponent, gradient, onPress, delay }: any) => (
-    <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.featureCardContainer}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        <LinearGradient
-          colors={gradient}
-          style={styles.featureCard}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.featureIconContainer}>
-            <IconComponent size={24} color={Colors.white} />
-          </View>
-          <Text style={styles.featureTitle}>{title}</Text>
-          <Text style={styles.featureDescription}>{description}</Text>
-          <View style={styles.featureAction}>
-            <ChevronRight size={14} color={Colors.white} />
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
-    </Animated.View>
-  );
 
   return (
     <View style={styles.container}>
@@ -122,18 +120,21 @@ const HomeScreen = ({ navigation }: any) => {
             value={`${user.stats.averageScore}%`}
             icon={TrendingUp}
             color={Colors.success}
+            styles={styles}
           />
           <QuickStatsCard
             title="Level"
             value={user.level}
             icon={Trophy}
             color={Colors.warning}
+            styles={styles}
           />
           <QuickStatsCard
             title="Streak"
             value={user.stats.streak}
             icon={Flame}
             color={Colors.error}
+            styles={styles}
           />
         </Animated.View>
 
@@ -176,6 +177,7 @@ const HomeScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.royal}
               onPress={() => navigation.navigate('Quiz', { screen: 'QuizSetup' })}
               delay={500}
+              styles={styles}
             />
             <FeatureCard
               title="Atlas & Map"
@@ -184,6 +186,7 @@ const HomeScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.ocean}
               onPress={() => navigation.navigate('Explore', { screen: 'Map' })}
               delay={600}
+              styles={styles}
             />
             <FeatureCard
               title="Timeline"
@@ -192,6 +195,7 @@ const HomeScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.sunset}
               onPress={() => navigation.navigate('Explore')}
               delay={700}
+              styles={styles}
             />
             <FeatureCard
               title="Library"
@@ -200,6 +204,7 @@ const HomeScreen = ({ navigation }: any) => {
               gradient={['#4568DC', '#B06AB3']}
               onPress={() => navigation.navigate('Explore', { screen: 'Concepts' })}
               delay={800}
+              styles={styles}
             />
           </View>
         </View>
