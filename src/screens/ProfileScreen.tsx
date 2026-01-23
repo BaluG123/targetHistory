@@ -11,6 +11,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { updatePreferences, setUserProfile } from '../store/slices/userSlice';
+import { signInWithGoogle, signOutUser } from '../store/slices/authSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
@@ -53,9 +54,25 @@ const AchievementBadge = ({ achievement, styles }: { achievement: string, styles
 const ProfileScreen = () => {
   const dispatch = useDispatch();
   const { user, quiz } = useSelector((state: RootState) => state);
+  const { user: authUser, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const isDark = user.preferences.theme === 'dark';
   const styles = createStyles(isDark);
+
+  const handleSignIn = () => {
+    dispatch(signInWithGoogle() as any);
+  };
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: () => dispatch(signOutUser() as any) }
+      ]
+    );
+  };
 
   const handleThemeToggle = (value: boolean) => {
     dispatch(updatePreferences({ theme: value ? 'dark' : 'light' }));
@@ -116,23 +133,46 @@ const ProfileScreen = () => {
       >
         <Animated.View entering={FadeInDown} style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Icon name="person" size={40} color="#fff" />
+            {isAuthenticated && authUser?.photoURL ? (
+              <Animated.Image
+                source={{ uri: authUser.photoURL }}
+                style={styles.avatarImage}
+                entering={FadeInDown}
+              />
+            ) : (
+              <Icon name="person" size={40} color="#fff" />
+            )}
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.userName}>{user.name || 'History Explorer'}</Text>
-            <Text style={styles.userEmail}>{user.email || 'explorer@targethistory.com'}</Text>
-            <View style={styles.levelContainer}>
-              <Text style={styles.levelText}>Level {user.level}</Text>
-              <View style={styles.xpContainer}>
-                <View style={styles.xpCircle}>
-                  <Text style={styles.xpText}>{user.experience} XP</Text>
+            <Text style={styles.userName}>
+              {isAuthenticated ? authUser?.displayName : 'History Explorer'}
+            </Text>
+            <Text style={styles.userEmail}>
+              {isAuthenticated ? authUser?.email : 'Sign in to save progress'}
+            </Text>
+
+            {isAuthenticated ? (
+              <View style={styles.levelContainer}>
+                <Text style={styles.levelText}>Level {user.level}</Text>
+                <View style={styles.xpContainer}>
+                  <View style={styles.xpCircle}>
+                    <Text style={styles.xpText}>{user.experience} XP</Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            ) : (
+              <TouchableOpacity onPress={handleSignIn} style={styles.signInButton}>
+                <Icon name="login" size={16} color="#FF6B35" />
+                <Text style={styles.signInText}>Sign In with Google</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <TouchableOpacity onPress={handleEditProfile} style={styles.editButton}>
-            <Icon name="edit" size={20} color="#fff" />
-          </TouchableOpacity>
+
+          {isAuthenticated && (
+            <TouchableOpacity onPress={handleEditProfile} style={styles.editButton}>
+              <Icon name="edit" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
         </Animated.View>
       </LinearGradient>
 
@@ -287,6 +327,13 @@ const ProfileScreen = () => {
             <Icon name="info" size={24} color="#FF6B35" />
             <Text style={styles.actionButtonText}>About Target History</Text>
           </TouchableOpacity>
+
+          {isAuthenticated && (
+            <TouchableOpacity style={styles.actionButton} onPress={handleSignOut}>
+              <Icon name="logout" size={24} color="#F44336" />
+              <Text style={[styles.actionButtonText, { color: '#F44336' }]}>Sign Out</Text>
+            </TouchableOpacity>
+          )}
         </Animated.View>
       </ScrollView>
     </View>
@@ -317,6 +364,11 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   profileInfo: {
     flex: 1,
@@ -364,6 +416,22 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
   },
   editButton: {
     padding: 8,
+  },
+  signInButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  signInText: {
+    color: '#FF6B35',
+    fontWeight: '700',
+    fontSize: 12,
+    marginLeft: 6,
   },
   content: {
     flex: 1,

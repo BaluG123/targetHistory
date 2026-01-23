@@ -6,9 +6,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Colors, getThemeColors } from '../constants/Colors';
+import { configureGoogleSignIn } from '../config/firebase';
 import SplashScreen from '../screens/SplashScreen';
 
 // Screens
+import TestListScreen from '../screens/tests/TestListScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import QuizScreen from '../screens/QuizScreen';
@@ -55,6 +57,10 @@ const AppNavigator = () => {
     setShowSplash(false);
   };
 
+  useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
+
   if (showSplash) {
     return <SplashScreen onFinish={handleSplashFinish} />;
   }
@@ -73,6 +79,9 @@ const AppNavigator = () => {
       case 'Quiz':
         iconName = 'quiz';
         break;
+      case 'Tests':
+        iconName = 'assignment';
+        break;
       case 'Profile':
         iconName = 'person';
         break;
@@ -81,9 +90,9 @@ const AppNavigator = () => {
     }
 
     return (
-      <Icon 
-        name={iconName} 
-        size={iconSize} 
+      <Icon
+        name={iconName}
+        size={iconSize}
         color={focused ? Colors.primary : color}
         style={{
           textShadowColor: focused ? 'rgba(255, 107, 53, 0.3)' : 'transparent',
@@ -128,7 +137,7 @@ const AppNavigator = () => {
     >
       <Tab.Navigator
         screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => 
+          tabBarIcon: ({ focused, color, size }) =>
             getTabBarIcon(route.name, focused, color, size),
           headerShown: false,
           tabBarActiveTintColor: Colors.primary,
@@ -156,29 +165,36 @@ const AppNavigator = () => {
           },
         })}
       >
-        <Tab.Screen 
-          name="Home" 
+        <Tab.Screen
+          name="Home"
           component={HomeScreen}
           options={{
             tabBarLabel: 'Home',
           }}
         />
-        <Tab.Screen 
-          name="Explore" 
+        <Tab.Screen
+          name="Explore"
           component={ExploreStack}
           options={{
             tabBarLabel: 'Explore',
           }}
         />
-        <Tab.Screen 
-          name="Quiz" 
+        <Tab.Screen
+          name="Quiz"
           component={QuizStack}
           options={{
             tabBarLabel: 'Quiz',
           }}
         />
-        <Tab.Screen 
-          name="Profile" 
+        <Tab.Screen
+          name="Tests"
+          component={TestListScreen}
+          options={{
+            tabBarLabel: 'Tests',
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
           component={ProfileScreen}
           options={{
             tabBarLabel: 'Profile',
