@@ -13,6 +13,100 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'ancient': return '#4CAF50';
+    case 'medieval': return '#FF9800';
+    case 'modern': return '#2196F3';
+    default: return '#666';
+  }
+};
+
+const getRegionColor = (region: string) => {
+  switch (region) {
+    case 'india': return '#FF6B35';
+    case 'world': return '#9C27B0';
+    default: return '#666';
+  }
+};
+
+const EventCard = ({ item, index, navigation, styles, isDark, favorites }: any) => (
+  <TouchableOpacity
+    onPress={() => navigation.navigate('EventDetail', { event: item })}
+    activeOpacity={0.8}
+  >
+    <Animatable.View
+      animation="fadeInUp"
+      delay={index * 100}
+      style={styles.eventCard}
+    >
+      <LinearGradient
+        colors={isDark ? ['#1E1E1E', '#2C2C2C'] : ['#fff', '#f8f9fa']}
+        style={styles.eventCardGradient}
+      >
+        <View style={styles.eventHeader}>
+          <View style={styles.eventMeta}>
+            <Text style={styles.eventDate}>{item.date}</Text>
+            <View style={styles.eventTags}>
+              <View style={[styles.tag, { backgroundColor: getCategoryColor(item.category) }]}>
+                <Text style={styles.tagText}>{item.category}</Text>
+              </View>
+              <View style={[styles.tag, { backgroundColor: getRegionColor(item.region) }]}>
+                <Text style={styles.tagText}>{item.region}</Text>
+              </View>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={() => {/* Toggle favorite */ }}
+            style={styles.favoriteButton}
+          >
+            <Icon
+              name={favorites.includes(item.id) ? "favorite" : "favorite-border"}
+              size={20}
+              color="#FF6B35"
+            />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.eventTitle}>{item.title}</Text>
+        <Text style={styles.eventDescription} numberOfLines={3}>
+          {item.description}
+        </Text>
+
+        {item.rulers && item.rulers.length > 0 && (
+          <View style={styles.rulersContainer}>
+            <Icon name="person" size={16} color="#666" />
+            <Text style={styles.rulersText}>
+              {item.rulers.join(', ')}
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.eventFooter}>
+          <View style={styles.significanceContainer}>
+            <Icon name="info" size={16} color="#FF6B35" />
+            <Text style={styles.significanceText} numberOfLines={2}>
+              {item.significance}
+            </Text>
+          </View>
+          <Icon name="arrow-forward" size={20} color="#FF6B35" />
+        </View>
+      </LinearGradient>
+    </Animatable.View>
+  </TouchableOpacity>
+);
+
+const FilterButton = ({ value, label, isActive, onPress, styles }: any) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[styles.filterButton, isActive && styles.activeFilterButton]}
+  >
+    <Text style={[styles.filterButtonText, isActive && styles.activeFilterButtonText]}>
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
+
 const EventsScreen = ({ navigation }: any) => {
   const { history, user } = useSelector((state: RootState) => state);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +119,7 @@ const EventsScreen = ({ navigation }: any) => {
   const filteredAndSortedEvents = history.events
     .filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           event.description.toLowerCase().includes(searchQuery.toLowerCase());
+        event.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesRegion = filterRegion === 'all' || event.region === filterRegion;
       return matchesSearch && matchesRegion;
     })
@@ -36,100 +130,6 @@ const EventsScreen = ({ navigation }: any) => {
         return a.title.localeCompare(b.title);
       }
     });
-
-  const EventCard = ({ item, index }: any) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('EventDetail', { event: item })}
-      activeOpacity={0.8}
-    >
-      <Animatable.View 
-        animation="fadeInUp" 
-        delay={index * 100}
-        style={styles.eventCard}
-      >
-        <LinearGradient
-          colors={isDark ? ['#1E1E1E', '#2C2C2C'] : ['#fff', '#f8f9fa']}
-          style={styles.eventCardGradient}
-        >
-          <View style={styles.eventHeader}>
-            <View style={styles.eventMeta}>
-              <Text style={styles.eventDate}>{item.date}</Text>
-              <View style={styles.eventTags}>
-                <View style={[styles.tag, { backgroundColor: getCategoryColor(item.category) }]}>
-                  <Text style={styles.tagText}>{item.category}</Text>
-                </View>
-                <View style={[styles.tag, { backgroundColor: getRegionColor(item.region) }]}>
-                  <Text style={styles.tagText}>{item.region}</Text>
-                </View>
-              </View>
-            </View>
-            <TouchableOpacity
-              onPress={() => {/* Toggle favorite */}}
-              style={styles.favoriteButton}
-            >
-              <Icon 
-                name={history.favorites.includes(item.id) ? "favorite" : "favorite-border"} 
-                size={20} 
-                color="#FF6B35" 
-              />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.eventTitle}>{item.title}</Text>
-          <Text style={styles.eventDescription} numberOfLines={3}>
-            {item.description}
-          </Text>
-
-          {item.rulers && item.rulers.length > 0 && (
-            <View style={styles.rulersContainer}>
-              <Icon name="person" size={16} color="#666" />
-              <Text style={styles.rulersText}>
-                {item.rulers.join(', ')}
-              </Text>
-            </View>
-          )}
-
-          <View style={styles.eventFooter}>
-            <View style={styles.significanceContainer}>
-              <Icon name="info" size={16} color="#FF6B35" />
-              <Text style={styles.significanceText} numberOfLines={2}>
-                {item.significance}
-              </Text>
-            </View>
-            <Icon name="arrow-forward" size={20} color="#FF6B35" />
-          </View>
-        </LinearGradient>
-      </Animatable.View>
-    </TouchableOpacity>
-  );
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'ancient': return '#4CAF50';
-      case 'medieval': return '#FF9800';
-      case 'modern': return '#2196F3';
-      default: return '#666';
-    }
-  };
-
-  const getRegionColor = (region: string) => {
-    switch (region) {
-      case 'india': return '#FF6B35';
-      case 'world': return '#9C27B0';
-      default: return '#666';
-    }
-  };
-
-  const FilterButton = ({ value, label, isActive, onPress }: any) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.filterButton, isActive && styles.activeFilterButton]}
-    >
-      <Text style={[styles.filterButtonText, isActive && styles.activeFilterButtonText]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -167,18 +167,21 @@ const EventsScreen = ({ navigation }: any) => {
               label="All"
               isActive={filterRegion === 'all'}
               onPress={() => setFilterRegion('all')}
+              styles={styles}
             />
             <FilterButton
               value="india"
               label="India"
               isActive={filterRegion === 'india'}
               onPress={() => setFilterRegion('india')}
+              styles={styles}
             />
             <FilterButton
               value="world"
               label="World"
               isActive={filterRegion === 'world'}
               onPress={() => setFilterRegion('world')}
+              styles={styles}
             />
           </View>
 
@@ -187,10 +190,10 @@ const EventsScreen = ({ navigation }: any) => {
               onPress={() => setSortBy(sortBy === 'date' ? 'name' : 'date')}
               style={styles.sortButton}
             >
-              <Icon 
-                name={sortBy === 'date' ? 'sort' : 'sort-by-alpha'} 
-                size={20} 
-                color="#FF6B35" 
+              <Icon
+                name={sortBy === 'date' ? 'sort' : 'sort-by-alpha'}
+                size={20}
+                color="#FF6B35"
               />
               <Text style={styles.sortText}>
                 {sortBy === 'date' ? 'Date' : 'Name'}
@@ -203,7 +206,16 @@ const EventsScreen = ({ navigation }: any) => {
       {/* Events List */}
       <FlatList
         data={filteredAndSortedEvents}
-        renderItem={({ item, index }) => <EventCard item={item} index={index} />}
+        renderItem={({ item, index }) => (
+          <EventCard
+            item={item}
+            index={index}
+            navigation={navigation}
+            styles={styles}
+            isDark={isDark}
+            favorites={history.favorites}
+          />
+        )}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}

@@ -12,24 +12,24 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+const formatReign = (start: number, end: number) => {
+  const formatYear = (year: number) => {
+    if (year < 0) return `${Math.abs(year)} BCE`;
+    return `${year} CE`;
+  };
+  return `${formatYear(start)} - ${formatYear(end)}`;
+};
+
+const getReignDuration = (start: number, end: number) => {
+  return Math.abs(end - start);
+};
+
 const RulerDetailScreen = ({ route, navigation }: any) => {
   const { user } = useSelector((state: RootState) => state);
   const { ruler } = route.params;
-  
+
   const isDark = user.preferences.theme === 'dark';
   const styles = createStyles(isDark);
-
-  const formatReign = (start: number, end: number) => {
-    const formatYear = (year: number) => {
-      if (year < 0) return `${Math.abs(year)} BCE`;
-      return `${year} CE`;
-    };
-    return `${formatYear(start)} - ${formatYear(end)}`;
-  };
-
-  const getReignDuration = (start: number, end: number) => {
-    return Math.abs(end - start);
-  };
 
   return (
     <View style={styles.container}>

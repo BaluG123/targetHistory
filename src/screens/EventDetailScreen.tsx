@@ -14,14 +14,24 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+const InfoCard = ({ title, content, icon, styles }: any) => (
+  <Animatable.View animation="fadeInUp" style={styles.infoCard}>
+    <View style={styles.infoHeader}>
+      <Icon name={icon} size={24} color="#FF6B35" />
+      <Text style={styles.infoTitle}>{title}</Text>
+    </View>
+    <Text style={styles.infoContent}>{content}</Text>
+  </Animatable.View>
+);
+
 const EventDetailScreen = ({ route, navigation }: any) => {
   const dispatch = useDispatch();
   const { history, user } = useSelector((state: RootState) => state);
   const { event } = route.params;
-  
+
   const isDark = user.preferences.theme === 'dark';
   const styles = createStyles(isDark);
-  
+
   const isFavorite = history.favorites.includes(event.id);
 
   const handleToggleFavorite = () => {
@@ -76,15 +86,15 @@ const EventDetailScreen = ({ route, navigation }: any) => {
           >
             <Icon name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             onPress={handleToggleFavorite}
             style={styles.favoriteButton}
           >
-            <Icon 
-              name={isFavorite ? "favorite" : "favorite-border"} 
-              size={24} 
-              color="#fff" 
+            <Icon
+              name={isFavorite ? "favorite" : "favorite-border"}
+              size={24}
+              color="#fff"
             />
           </TouchableOpacity>
         </View>
@@ -92,7 +102,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
         <Animatable.View animation="fadeInDown" delay={300}>
           <Text style={styles.eventTitle}>{event.title}</Text>
           <Text style={styles.eventDate}>{event.date}</Text>
-          
+
           <View style={styles.eventTags}>
             <View style={[styles.tag, { backgroundColor: getCategoryColor(event.category) }]}>
               <Text style={styles.tagText}>{event.category}</Text>
@@ -117,6 +127,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
             title="Historical Significance"
             content={event.significance}
             icon="info"
+            styles={styles}
           />
         )}
 
@@ -142,7 +153,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
             <Icon name="timeline" size={24} color="#FF6B35" />
             <Text style={styles.infoTitle}>Timeline Context</Text>
           </View>
-          
+
           <View style={styles.timelineItem}>
             <View style={styles.timelineDot} />
             <View style={styles.timelineContent}>
@@ -153,9 +164,9 @@ const EventDetailScreen = ({ route, navigation }: any) => {
 
           {/* Add related events from the same period */}
           {history.events
-            .filter(e => 
-              e.id !== event.id && 
-              e.category === event.category && 
+            .filter(e =>
+              e.id !== event.id &&
+              e.category === event.category &&
               e.region === event.region &&
               Math.abs(e.year - event.year) <= 100
             )
@@ -198,7 +209,7 @@ const EventDetailScreen = ({ route, navigation }: any) => {
             <Icon name="school" size={24} color="#FF6B35" />
             <Text style={styles.infoTitle}>Related Concepts</Text>
           </View>
-          
+
           <View style={styles.conceptsList}>
             {event.category === 'ancient' && (
               <>

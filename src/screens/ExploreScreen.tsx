@@ -27,6 +27,25 @@ import LinearGradient from 'react-native-linear-gradient';
 import Animated, { FadeInDown, FadeInUp, FadeInRight } from 'react-native-reanimated';
 import { Colors, getThemeColors } from '../constants/Colors';
 
+const CategoryItem = ({ title, icon: IconComponent, gradient, onPress, index, styles }: any) => (
+  <Animated.View entering={FadeInRight.delay(index * 100).springify()} style={styles.categoryCardWrapper}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.categoryCard}>
+      <LinearGradient
+        colors={gradient}
+        style={styles.categoryGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.categoryIconCircle}>
+          <IconComponent size={24} color="#fff" />
+        </View>
+        <Text style={styles.categoryCardTitle}>{title}</Text>
+        <ChevronRight size={16} color="rgba(255,255,255,0.7)" style={styles.categoryChevron} />
+      </LinearGradient>
+    </TouchableOpacity>
+  </Animated.View>
+);
+
 const ExploreScreen = ({ navigation }: any) => {
   const { history, user } = useSelector((state: RootState) => state);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'ancient' | 'medieval' | 'modern'>('all');
@@ -44,25 +63,6 @@ const ExploreScreen = ({ navigation }: any) => {
       return matchesCategory && matchesSearch;
     });
   }, [history.events, selectedCategory, searchQuery]);
-
-  const CategoryItem = ({ title, icon: IconComponent, gradient, onPress, index }: any) => (
-    <Animated.View entering={FadeInRight.delay(index * 100).springify()} style={styles.categoryCardWrapper}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.categoryCard}>
-        <LinearGradient
-          colors={gradient}
-          style={styles.categoryGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.categoryIconCircle}>
-            <IconComponent size={24} color="#fff" />
-          </View>
-          <Text style={styles.categoryCardTitle}>{title}</Text>
-          <ChevronRight size={16} color="rgba(255,255,255,0.7)" style={styles.categoryChevron} />
-        </LinearGradient>
-      </TouchableOpacity>
-    </Animated.View>
-  );
 
   return (
     <View style={styles.container}>
@@ -114,6 +114,7 @@ const ExploreScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.ocean}
               onPress={() => navigation.navigate('Map')}
               index={0}
+              styles={styles}
             />
             <CategoryItem
               title="Timeline View"
@@ -121,6 +122,7 @@ const ExploreScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.medieval}
               onPress={() => navigation.navigate('Events')}
               index={1}
+              styles={styles}
             />
             <CategoryItem
               title="Civilizations"
@@ -128,6 +130,7 @@ const ExploreScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.ancient}
               onPress={() => navigation.navigate('Concepts')}
               index={2}
+              styles={styles}
             />
             <CategoryItem
               title="Master Library"
@@ -135,6 +138,7 @@ const ExploreScreen = ({ navigation }: any) => {
               gradient={Colors.gradients.royal}
               onPress={() => navigation.navigate('Concepts')}
               index={3}
+              styles={styles}
             />
           </View>
         </View>
