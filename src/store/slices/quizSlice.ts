@@ -7,7 +7,7 @@ export interface QuizQuestion {
   correctAnswer: number;
   explanation: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  category: 'ancient' | 'medieval' | 'modern';
+  category: 'ancient' | 'medieval' | 'modern' | 'mixed';
   region: 'world' | 'india';
   points: number;
 }
@@ -20,6 +20,7 @@ export interface QuizResult {
   timeSpent: number;
   category: string;
   region: string;
+  difficulty: string;
   date: string;
 }
 
@@ -32,7 +33,7 @@ interface QuizState {
   isQuizActive: boolean;
   quizResults: QuizResult[];
   selectedDifficulty: 'easy' | 'medium' | 'hard';
-  selectedCategory: 'ancient' | 'medieval' | 'modern';
+  selectedCategory: 'ancient' | 'medieval' | 'modern' | 'mixed';
   selectedRegion: 'world' | 'india';
   timeRemaining: number;
   totalTime: number;
@@ -105,6 +106,7 @@ const quizSlice = createSlice({
         timeSpent: state.totalTime - state.timeRemaining,
         category: state.selectedCategory,
         region: state.selectedRegion,
+        difficulty: state.selectedDifficulty,
         date: new Date().toISOString(),
       };
       if (state.quizMode === 'classic') {
@@ -113,7 +115,7 @@ const quizSlice = createSlice({
     },
     setQuizSettings: (state, action: PayloadAction<{
       difficulty?: 'easy' | 'medium' | 'hard';
-      category?: 'ancient' | 'medieval' | 'modern';
+      category?: 'ancient' | 'medieval' | 'modern' | 'mixed';
       region?: 'world' | 'india';
       mode?: 'study' | 'classic';
     }>) => {

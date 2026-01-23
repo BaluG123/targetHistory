@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
@@ -14,27 +15,27 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+const { width } = Dimensions.get('window');
+
 const QuizResultScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { quiz, user } = useSelector((state: RootState) => state);
-  
-  const isDark = user.preferences.theme === 'dark';
-  const styles = createStyles(isDark);
 
+  const isDark = user.preferences.theme === 'dark';
   const latestResult = quiz.quizResults[quiz.quizResults.length - 1];
-  
+
   const scorePercentage = latestResult ? Math.round((latestResult.correctAnswers / latestResult.totalQuestions) * 100) : 0;
   const timeSpentMinutes = latestResult ? Math.floor(latestResult.timeSpent / 60) : 0;
   const timeSpentSeconds = latestResult ? latestResult.timeSpent % 60 : 0;
 
   useEffect(() => {
     if (!latestResult) return;
-    
+
     // Update user stats
     const newStats = {
       totalQuizzesTaken: user.stats.totalQuizzesTaken + 1,
       averageScore: Math.round(
-        (user.stats.averageScore * user.stats.totalQuizzesTaken + scorePercentage) / 
+        (user.stats.averageScore * user.stats.totalQuizzesTaken + scorePercentage) /
         (user.stats.totalQuizzesTaken + 1)
       ),
       bestScore: Math.max(user.stats.bestScore, scorePercentage),
@@ -48,431 +49,235 @@ const QuizResultScreen = ({ navigation }: any) => {
     dispatch(addExperience(experienceGained));
 
     // Check for achievements
-    if (scorePercentage === 100) {
-      dispatch(addAchievement('Perfect Score'));
-    }
-    if (user.stats.totalQuizzesTaken + 1 === 1) {
-      dispatch(addAchievement('First Quiz'));
-    }
-    if (user.stats.totalQuizzesTaken + 1 === 10) {
-      dispatch(addAchievement('Quiz Master'));
-    }
-  }, [dispatch, latestResult, scorePercentage, user.stats.averageScore, user.stats.bestScore, user.stats.totalQuizzesTaken, user.stats.totalTimeSpent]);
-  
-  if (!latestResult) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No quiz results found</Text>
-      </View>
-    );
-  }
+    if (scorePercentage === 100) dispatch(addAchievement('Perfect Score'));
+    if (user.stats.totalQuizzesTaken + 1 === 10) dispatch(addAchievement('Quiz Master'));
+  }, [dispatch]);
 
-  const getScoreColor = () => {
-    if (scorePercentage >= 80) return '#4CAF50';
-    if (scorePercentage >= 60) return '#FF9800';
-    return '#F44336';
+  const getRank = () => {
+    if (scorePercentage >= 95) return { label: 'GRAND MASTER', color: '#FFD700', icon: 'auto-awesome' };
+    if (scorePercentage >= 80) return { label: 'SCHOLAR', color: '#C0C0C0', icon: 'school' };
+    if (scorePercentage >= 60) return { label: 'NOVICE', color: '#CD7F32', icon: 'menu-book' };
+    return { label: 'ASPIRANT', color: '#888', icon: 'history-edu' };
   };
 
-  const getPerformanceMessage = () => {
-    if (scorePercentage >= 90) return 'Excellent! You\'re a history expert!';
-    if (scorePercentage >= 80) return 'Great job! You know your history well!';
-    if (scorePercentage >= 70) return 'Good work! Keep studying to improve!';
-    if (scorePercentage >= 60) return 'Not bad! There\'s room for improvement!';
-    return 'Keep practicing! You\'ll get better!';
-  };
+  if (!latestResult) return null;
 
-  const getScoreIcon = () => {
-    if (scorePercentage >= 90) return 'emoji-events';
-    if (scorePercentage >= 80) return 'thumb-up';
-    if (scorePercentage >= 60) return 'trending-up';
-    return 'school';
-  };
-
-  const StatItem = ({ label, value, icon, color }: any) => (
-    <View style={styles.statItem}>
-      <Icon name={icon} size={24} color={color} />
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
+  const rank = getRank();
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient
-        colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
-        style={styles.header}
-      >
-        <Animatable.View animation="bounceIn" delay={500}>
-          <Icon name={getScoreIcon()} size={60} color="#fff" />
-        </Animatable.View>
-        <Animatable.Text animation="fadeInUp" delay={700} style={styles.headerTitle}>
-          Quiz Complete!
-        </Animatable.Text>
-        <Animatable.Text animation="fadeInUp" delay={900} style={styles.headerSubtitle}>
-          {getPerformanceMessage()}
-        </Animatable.Text>
-      </LinearGradient>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Score Circle */}
-        <Animatable.View animation="zoomIn" delay={1000} style={styles.scoreContainer}>
-          <View style={styles.scoreCircle}>
-            <Text style={[styles.scoreText, { color: getScoreColor() }]}>
-              {scorePercentage}%
-            </Text>
-            <Text style={styles.scoreSubtext}>Score</Text>
-          </View>
-        </Animatable.View>
-
-        {/* Stats */}
-        <Animatable.View animation="fadeInUp" delay={1200} style={styles.statsContainer}>
-          <StatItem
-            label="Correct"
-            value={latestResult.correctAnswers}
-            icon="check-circle"
-            color="#4CAF50"
-          />
-          <StatItem
-            label="Incorrect"
-            value={latestResult.totalQuestions - latestResult.correctAnswers}
-            icon="cancel"
-            color="#F44336"
-          />
-          <StatItem
-            label="Time"
-            value={`${timeSpentMinutes}:${timeSpentSeconds.toString().padStart(2, '0')}`}
-            icon="schedule"
-            color="#2196F3"
-          />
-          <StatItem
-            label="Points"
-            value={latestResult.score}
-            icon="star"
-            color="#FF9800"
-          />
-        </Animatable.View>
-
-        {/* Quiz Details */}
-        <Animatable.View animation="fadeInUp" delay={1400} style={styles.detailsCard}>
-          <Text style={styles.detailsTitle}>Quiz Details</Text>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Category:</Text>
-            <Text style={styles.detailValue}>{latestResult.category}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Region:</Text>
-            <Text style={styles.detailValue}>{latestResult.region}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Total Questions:</Text>
-            <Text style={styles.detailValue}>{latestResult.totalQuestions}</Text>
-          </View>
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Date:</Text>
-            <Text style={styles.detailValue}>
-              {new Date(latestResult.date).toLocaleDateString()}
-            </Text>
-          </View>
-        </Animatable.View>
-
-        {/* Experience Gained */}
-        <Animatable.View animation="fadeInUp" delay={1600} style={styles.experienceCard}>
-          <Icon name="trending-up" size={24} color="#FF6B35" />
-          <Text style={styles.experienceText}>
-            +{latestResult.correctAnswers * 50 + (scorePercentage >= 80 ? 100 : 0)} XP Gained!
-          </Text>
-          {scorePercentage >= 80 && (
-            <Text style={styles.bonusText}>Bonus: +100 XP for 80%+ score!</Text>
-          )}
-        </Animatable.View>
-
-        {/* Recommendations */}
-        <Animatable.View animation="fadeInUp" delay={1800} style={styles.recommendationsCard}>
-          <Text style={styles.recommendationsTitle}>Recommendations</Text>
-          {scorePercentage < 70 && (
-            <View style={styles.recommendationItem}>
-              <Icon name="school" size={20} color="#FF6B35" />
-              <Text style={styles.recommendationText}>
-                Review the concepts section to improve your understanding
-              </Text>
+    <View style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F5F5F7' }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <LinearGradient
+          colors={isDark ? ['#1F1F1F', '#121212'] : ['#2C3E50', '#000000']}
+          style={styles.header}
+        >
+          <Animatable.View animation="zoomIn" style={styles.rankBadge}>
+            <View style={[styles.rankIconContainer, { borderColor: rank.color }]}>
+              <Icon name={rank.icon} size={50} color={rank.color} />
             </View>
-          )}
-          <View style={styles.recommendationItem}>
-            <Icon name="map" size={20} color="#FF6B35" />
-            <Text style={styles.recommendationText}>
-              Explore the interactive map to visualize historical events
-            </Text>
-          </View>
-          <View style={styles.recommendationItem}>
-            <Icon name="timeline" size={20} color="#FF6B35" />
-            <Text style={styles.recommendationText}>
-              Check out the timeline to understand chronological order
-            </Text>
-          </View>
-        </Animatable.View>
+            <Text style={[styles.rankLabel, { color: rank.color }]}>{rank.label}</Text>
+          </Animatable.View>
 
-        {/* Action Buttons */}
-        <Animatable.View animation="fadeInUp" delay={2000} style={styles.actionsContainer}>
+          <Text style={styles.congratText}>Quiz Conquest Complete</Text>
+          <Text style={styles.scoreText}>{scorePercentage}%</Text>
+        </LinearGradient>
+
+        <View style={styles.content}>
+          <View style={styles.statsGrid}>
+            <View style={[styles.statBox, isDark && { backgroundColor: '#1E1E1E' }]}>
+              <Icon name="check-circle" size={24} color="#4CAF50" />
+              <Text style={[styles.statVal, isDark && { color: '#fff' }]}>{latestResult.correctAnswers}</Text>
+              <Text style={styles.statLab}>CORRECT</Text>
+            </View>
+            <View style={[styles.statBox, isDark && { backgroundColor: '#1E1E1E' }]}>
+              <Icon name="timer" size={24} color="#2196F3" />
+              <Text style={[styles.statVal, isDark && { color: '#fff' }]}>{timeSpentMinutes}m {timeSpentSeconds}s</Text>
+              <Text style={styles.statLab}>TIME</Text>
+            </View>
+            <View style={[styles.statBox, isDark && { backgroundColor: '#1E1E1E' }]}>
+              <Icon name="bolt" size={24} color="#FF9800" />
+              <Text style={[styles.statVal, isDark && { color: '#fff' }]}>{latestResult.score}</Text>
+              <Text style={styles.statLab}>POINTS</Text>
+            </View>
+          </View>
+
+          <Animatable.View animation="fadeInUp" delay={400} style={[styles.masteryCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+            <Text style={[styles.cardTitle, isDark && { color: '#fff' }]}>Mastery Analysis</Text>
+            <View style={styles.masteryRow}>
+              <Text style={styles.masteryLabel}>Historical Accuracy</Text>
+              <View style={styles.masteryBarTrack}>
+                <View style={[styles.masteryBarFill, { width: `${scorePercentage}%`, backgroundColor: rank.color }]} />
+              </View>
+            </View>
+            <Text style={styles.masteryNote}>Difficulty: {latestResult.difficulty.toUpperCase()} • {latestResult.region.toUpperCase()}</Text>
+          </Animatable.View>
+
           <TouchableOpacity
             onPress={() => navigation.navigate('QuizSetup')}
-            style={styles.primaryButton}
-            activeOpacity={0.8}
+            style={styles.primaryBtn}
           >
-            <LinearGradient
-              colors={['#FF6B35', '#F7931E']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
+            <LinearGradient colors={['#FF6B35', '#F7931E']} style={styles.btnGradient}>
+              <Text style={styles.btnText}>NEW QUEST</Text>
               <Icon name="refresh" size={20} color="#fff" />
-              <Text style={styles.primaryButtonText}>Take Another Quiz</Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => navigation.navigate('Home')}
-            style={styles.secondaryButton}
-            activeOpacity={0.8}
+            style={[styles.secondaryBtn, isDark && { backgroundColor: '#1E1E1E' }]}
           >
-            <Text style={styles.secondaryButtonText}>Back to Home</Text>
+            <Text style={styles.secondaryBtnText}>RETURN TO CITADEL</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Profile')}
-            style={styles.secondaryButton}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.secondaryButtonText}>View Profile</Text>
-          </TouchableOpacity>
-        </Animatable.View>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-const createStyles = (isDark: boolean) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: isDark ? '#121212' : '#f5f5f5',
   },
   header: {
+    paddingTop: 80,
+    paddingBottom: 60,
     alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 40,
-    borderBottomLeftRadius: 25,
-    borderBottomRightRadius: 25,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 20,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#fff',
-    opacity: 0.9,
-    marginTop: 10,
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  content: {
-    flex: 1,
-  },
-  scoreContainer: {
+  rankBadge: {
     alignItems: 'center',
-    marginVertical: 30,
+    marginBottom: 20,
   },
-  scoreCircle: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    alignItems: 'center',
+  rankIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 4,
     justifyContent: 'center',
-    borderWidth: 8,
-    borderColor: '#FF6B35',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  rankLabel: {
+    marginTop: 15,
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: 2,
+  },
+  congratText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginTop: 10,
   },
   scoreText: {
-    fontSize: 36,
-    fontWeight: 'bold',
+    color: '#fff',
+    fontSize: 72,
+    fontWeight: '900',
   },
-  scoreSubtext: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-    marginTop: 5,
+  content: {
+    padding: 25,
+    marginTop: -30,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  statItem: {
-    alignItems: 'center',
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    padding: 20,
-    borderRadius: 15,
-    minWidth: 80,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginVertical: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: isDark ? '#ccc' : '#666',
-  },
-  detailsCard: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    margin: 20,
-    padding: 20,
-    borderRadius: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  detailsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 15,
-  },
-  detailRow: {
+  statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: isDark ? '#333' : '#f0f0f0',
+    marginBottom: 25,
   },
-  detailLabel: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: isDark ? '#fff' : '#333',
-    textTransform: 'capitalize',
-  },
-  experienceCard: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
+  statBox: {
+    flex: 1,
+    backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 15,
+    borderRadius: 24,
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    marginHorizontal: 5,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10 },
+      android: { elevation: 4 }
+    }),
   },
-  experienceText: {
-    fontSize: 16,
+  statVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    marginTop: 8,
+    color: '#1A1A1A',
+  },
+  statLab: {
+    fontSize: 10,
     fontWeight: 'bold',
-    color: '#FF6B35',
+    color: '#999',
+    marginTop: 2,
+  },
+  masteryCard: {
+    backgroundColor: '#fff',
+    padding: 25,
+    borderRadius: 28,
+    marginBottom: 30,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#1A1A1A',
+    marginBottom: 20,
+  },
+  masteryRow: {
+    marginBottom: 15,
+  },
+  masteryLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#666',
+    marginBottom: 8,
+  },
+  masteryBarTrack: {
+    height: 10,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  masteryBarFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+  masteryNote: {
+    fontSize: 11,
+    color: '#999',
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginTop: 10,
   },
-  bonusText: {
-    fontSize: 12,
-    color: '#4CAF50',
-    marginTop: 5,
-  },
-  recommendationsCard: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    padding: 20,
-    borderRadius: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  recommendationsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
+  primaryBtn: {
+    height: 65,
+    borderRadius: 32.5,
+    overflow: 'hidden',
     marginBottom: 15,
   },
-  recommendationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  recommendationText: {
-    marginLeft: 12,
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
+  btnGradient: {
     flex: 1,
-    lineHeight: 20,
-  },
-  actionsContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  primaryButton: {
-    marginBottom: 15,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  buttonGradient: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 18,
-    borderRadius: 25,
-  },
-  primaryButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  secondaryButton: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    padding: 18,
-    borderRadius: 25,
     alignItems: 'center',
-    marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    gap: 12,
   },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF6B35',
-  },
-  errorText: {
+  btnText: {
+    color: '#fff',
     fontSize: 18,
-    color: isDark ? '#fff' : '#333',
-    textAlign: 'center',
-    marginTop: 50,
+    fontWeight: '900',
+    letterSpacing: 2,
+  },
+  secondaryBtn: {
+    height: 65,
+    borderRadius: 32.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  secondaryBtnText: {
+    color: '#FF6B35',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
 });
 

@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Dimensions,
+  Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
@@ -14,410 +16,461 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
+const { width } = Dimensions.get('window');
+
 const QuizSetupScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { quiz, user } = useSelector((state: RootState) => state);
+
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
-  const [selectedCategory, setSelectedCategory] = useState<'ancient' | 'medieval' | 'modern'>('ancient');
   const [selectedRegion, setSelectedRegion] = useState<'world' | 'india'>('india');
   const [questionCount, setQuestionCount] = useState(10);
   const [timeLimit, setTimeLimit] = useState(10); // minutes
 
   const isDark = user.preferences.theme === 'dark';
-  const styles = createStyles(isDark);
 
   const difficultyOptions = [
-    { value: 'easy', label: 'Easy', description: '10 points per question', color: '#4CAF50' },
-    { value: 'medium', label: 'Medium', description: '20 points per question', color: '#FF9800' },
-    { value: 'hard', label: 'Hard', description: '30 points per question', color: '#F44336' },
-  ];
-
-  const categoryOptions = [
-    { value: 'ancient', label: 'Ancient', description: 'Before 550 CE', icon: 'account-balance' },
-    { value: 'medieval', label: 'Medieval', description: '550 - 1707 CE', icon: 'castle' },
-    { value: 'modern', label: 'Modern', description: '1707 CE onwards', icon: 'business' },
+    { value: 'easy', label: 'Easy', description: 'Beginner friendly history questions.', color: '#4CAF50', icon: 'mood' },
+    { value: 'medium', label: 'Medium', description: 'A balanced challenge for learners.', color: '#FF9800', icon: 'psychology' },
+    { value: 'hard', label: 'Hard', description: 'Tough questions for experts.', color: '#F44336', icon: 'workspace-premium' },
   ];
 
   const regionOptions = [
-    { value: 'india', label: 'Indian History', description: 'Focus on Indian subcontinent', icon: 'flag' },
-    { value: 'world', label: 'World History', description: 'Global historical events', icon: 'public' },
+    { value: 'india', label: 'Indian History', description: 'Deep dive into the sub-continent.', icon: 'flag', gradient: ['#FF9933', '#FFFFFF', '#138808'] },
+    { value: 'world', label: 'World History', description: 'Global events and civilizations.', icon: 'public', gradient: ['#4FACFE', '#00F2FE'] },
   ];
 
   const questionCountOptions = [5, 10, 15, 20];
-  const timeLimitOptions = [5, 10, 15, 20]; // minutes
+  const timeLimitOptions = [5, 10, 15, 20];
 
-  const startQuizHandler = () => {
-    // Filter questions based on selected criteria
-    const filteredQuestions = quiz.questions.filter(q => 
+  const handleStartQuiz = () => {
+    const filteredQuestions = quiz.questions.filter(q =>
       q.difficulty === selectedDifficulty &&
-      q.category === selectedCategory &&
       q.region === selectedRegion
     );
 
-    if (filteredQuestions.length < questionCount) {
-      Alert.alert(
-        'Not Enough Questions',
-        `Only ${filteredQuestions.length} questions available for the selected criteria. Please adjust your selection.`,
-        [{ text: 'OK' }]
-      );
+    if (filteredQuestions.length === 0) {
+      Alert.alert('No Questions', 'No questions found for this selection. Try changing difficulty or region.');
       return;
     }
 
-    // Shuffle and select questions
     const shuffled = [...filteredQuestions].sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionCount);
+    const finalCount = Math.min(questionCount, shuffled.length);
 
     dispatch(setQuizSettings({
       difficulty: selectedDifficulty,
-      category: selectedCategory,
+      category: 'mixed',
       region: selectedRegion,
     }));
 
     dispatch(startQuiz({
-      questions: selectedQuestions,
-      timeLimit: timeLimit * 60, // convert to seconds
-      mode: 'classic', // default to classic mode
+      questions: shuffled.slice(0, finalCount),
+      timeLimit: timeLimit * 60,
+      mode: 'classic',
     }));
 
     navigation.navigate('Quiz');
   };
 
-  const OptionCard = ({ option, isSelected, onPress, type }: any) => (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-      <Animatable.View
-        animation={isSelected ? "pulse" : undefined}
-        style={[
-          styles.optionCard,
-          isSelected && styles.selectedOptionCard,
-          { borderColor: isSelected ? option.color || '#FF6B35' : 'transparent' }
-        ]}
-      >
-        <View style={styles.optionHeader}>
-          {option.icon && <Icon name={option.icon} size={24} color={isSelected ? '#FF6B35' : '#666'} />}
-          <Text style={[styles.optionTitle, isSelected && styles.selectedOptionTitle]}>
-            {option.label}
-          </Text>
-          {isSelected && <Icon name="check-circle" size={20} color="#FF6B35" />}
-        </View>
-        <Text style={[styles.optionDescription, isSelected && styles.selectedOptionDescription]}>
-          {option.description}
-        </Text>
-      </Animatable.View>
-    </TouchableOpacity>
+  const nextStep = () => {
+    if (currentStep < 2) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleStartQuiz();
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const renderDifficultyStep = () => (
+    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+      <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Pick your Challenge</Text>
+      <Text style={styles.stepSubtitle}>How deep is your historical knowledge?</Text>
+
+      {difficultyOptions.map((opt) => (
+        <TouchableOpacity
+          key={opt.value}
+          onPress={() => setSelectedDifficulty(opt.value as any)}
+          style={[
+            styles.diffCard,
+            { backgroundColor: isDark ? '#1E1E1E' : '#fff' },
+            selectedDifficulty === opt.value && { borderColor: opt.color, borderWidth: 2 }
+          ]}
+          activeOpacity={0.9}
+        >
+          <View style={[styles.diffIconContainer, { backgroundColor: opt.color }]}>
+            <Icon name={opt.icon} size={30} color="#fff" />
+          </View>
+          <View style={styles.diffTextContainer}>
+            <Text style={[styles.diffLabel, isDark && { color: '#fff' }, selectedDifficulty === opt.value && { color: opt.color }]}>{opt.label}</Text>
+            <Text style={styles.diffDesc}>{opt.description}</Text>
+          </View>
+          {selectedDifficulty === opt.value && (
+            <Icon name="check-circle" size={24} color={opt.color} />
+          )}
+        </TouchableOpacity>
+      ))}
+    </Animatable.View>
   );
 
-  const NumberSelector = ({ options, selected, onSelect, label }: any) => (
-    <View style={styles.numberSelectorContainer}>
-      <Text style={styles.sectionTitle}>{label}</Text>
-      <View style={styles.numberOptions}>
-        {options.map((option: number) => (
+  const renderGeographyStep = () => (
+    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+      <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Global or Local?</Text>
+      <Text style={styles.stepSubtitle}>Select the arena of your trivia quest.</Text>
+
+      <View style={styles.geoGrid}>
+        {regionOptions.map((opt) => (
           <TouchableOpacity
-            key={option}
-            onPress={() => onSelect(option)}
-            style={[
-              styles.numberOption,
-              selected === option && styles.selectedNumberOption
-            ]}
+            key={opt.value}
+            onPress={() => setSelectedRegion(opt.value as any)}
+            style={styles.geoCardWrapper}
+            activeOpacity={0.9}
           >
-            <Text style={[
-              styles.numberOptionText,
-              selected === option && styles.selectedNumberOptionText
-            ]}>
-              {option}
-            </Text>
+            <Animatable.View
+              style={[
+                styles.geoCard,
+                selectedRegion === opt.value && styles.selectedGeoCard
+              ]}
+            >
+              <LinearGradient
+                colors={opt.gradient as any}
+                style={styles.geoGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Icon name={opt.icon} size={40} color={selectedRegion === opt.value ? '#fff' : 'rgba(255,255,255,0.7)'} />
+                <Text style={styles.geoLabel}>{opt.label}</Text>
+              </LinearGradient>
+            </Animatable.View>
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+      <View style={styles.infoBox}>
+        <Icon name="info" size={20} color="#FF6B35" />
+        <Text style={styles.infoText}>Questions will be a mix of Ancient, Medieval, and Modern periods.</Text>
+      </View>
+    </Animatable.View>
+  );
+
+  const renderParameterStep = () => (
+    <Animatable.View animation="fadeInRight" duration={400} style={styles.stepContainer}>
+      <Text style={[styles.stepTitle, isDark && { color: '#fff' }]}>Set the Stakes</Text>
+      <Text style={styles.stepSubtitle}>Adjust the volume and the clock.</Text>
+
+      <View style={styles.paramSection}>
+        <Text style={[styles.paramLabel, isDark && { color: '#fff' }]}>Question Count</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipContainer}>
+          {questionCountOptions.map(count => (
+            <TouchableOpacity
+              key={count}
+              onPress={() => setQuestionCount(count)}
+              style={[
+                styles.chip,
+                { backgroundColor: isDark ? '#1E1E1E' : '#fff', borderColor: isDark ? '#333' : '#eee' },
+                questionCount === count && styles.selectedChip
+              ]}
+            >
+              <Text style={[styles.chipText, isDark && { color: '#fff' }, questionCount === count && styles.selectedChipText]}>{count}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <View style={styles.paramSection}>
+        <Text style={[styles.paramLabel, isDark && { color: '#fff' }]}>Time Limit (Minutes)</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipContainer}>
+          {timeLimitOptions.map(time => (
+            <TouchableOpacity
+              key={time}
+              onPress={() => setTimeLimit(time)}
+              style={[
+                styles.chip,
+                { backgroundColor: isDark ? '#1E1E1E' : '#fff', borderColor: isDark ? '#333' : '#eee' },
+                timeLimit === time && styles.selectedChip
+              ]}
+            >
+              <Text style={[styles.chipText, isDark && { color: '#fff' }, timeLimit === time && styles.selectedChipText]}>{time}m</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <View style={[styles.summaryBox, { backgroundColor: isDark ? '#1E1E1E' : '#eee' }]}>
+        <View style={styles.summaryItem}>
+          <Icon name="history" size={20} color={isDark ? '#888' : '#666'} />
+          <Text style={[styles.summaryText, isDark && { color: '#888' }]}>{selectedDifficulty.toUpperCase()} • {selectedRegion === 'india' ? 'INDIA' : 'WORLD'} • MIXED</Text>
+        </View>
+      </View>
+    </Animatable.View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <View style={[styles.container, { backgroundColor: isDark ? '#121212' : '#F8F9FA' }]}>
       <LinearGradient
-        colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
-        style={styles.header}
+        colors={isDark ? ['#1A1A1A', '#121212'] : ['#FF6B35', '#F7931E']}
+        style={styles.topBar}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Icon name="arrow-back" size={24} color="#fff" />
+        <TouchableOpacity onPress={prevStep} style={styles.iconButton}>
+          <Icon name={currentStep === 0 ? "close" : "arrow-back"} size={26} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quiz Setup</Text>
-        <Text style={styles.headerSubtitle}>Customize your quiz experience</Text>
+
+        <View style={styles.progressDots}>
+          {[0, 1, 2].map((i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                currentStep === i && styles.activeDot,
+                currentStep > i && styles.completedDot
+              ]}
+            />
+          ))}
+        </View>
+
+        <View style={{ width: 40 }} />
       </LinearGradient>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Difficulty Selection */}
-        <Animatable.View animation="fadeInUp" delay={200}>
-          <Text style={styles.sectionTitle}>Difficulty Level</Text>
-          {difficultyOptions.map((option) => (
-            <OptionCard
-              key={option.value}
-              option={option}
-              isSelected={selectedDifficulty === option.value}
-              onPress={() => setSelectedDifficulty(option.value as any)}
-              type="difficulty"
-            />
-          ))}
-        </Animatable.View>
+      <View style={styles.mainContent}>
+        {currentStep === 0 && renderDifficultyStep()}
+        {currentStep === 1 && renderGeographyStep()}
+        {currentStep === 2 && renderParameterStep()}
+      </View>
 
-        {/* Category Selection */}
-        <Animatable.View animation="fadeInUp" delay={400}>
-          <Text style={styles.sectionTitle}>Historical Period</Text>
-          {categoryOptions.map((option) => (
-            <OptionCard
-              key={option.value}
-              option={option}
-              isSelected={selectedCategory === option.value}
-              onPress={() => setSelectedCategory(option.value as any)}
-              type="category"
-            />
-          ))}
-        </Animatable.View>
-
-        {/* Region Selection */}
-        <Animatable.View animation="fadeInUp" delay={600}>
-          <Text style={styles.sectionTitle}>Region Focus</Text>
-          {regionOptions.map((option) => (
-            <OptionCard
-              key={option.value}
-              option={option}
-              isSelected={selectedRegion === option.value}
-              onPress={() => setSelectedRegion(option.value as any)}
-              type="region"
-            />
-          ))}
-        </Animatable.View>
-
-        {/* Question Count */}
-        <Animatable.View animation="fadeInUp" delay={800}>
-          <NumberSelector
-            options={questionCountOptions}
-            selected={questionCount}
-            onSelect={setQuestionCount}
-            label="Number of Questions"
-          />
-        </Animatable.View>
-
-        {/* Time Limit */}
-        <Animatable.View animation="fadeInUp" delay={1000}>
-          <NumberSelector
-            options={timeLimitOptions}
-            selected={timeLimit}
-            onSelect={setTimeLimit}
-            label="Time Limit (minutes)"
-          />
-        </Animatable.View>
-
-        {/* Quiz Summary */}
-        <Animatable.View animation="fadeInUp" delay={1200} style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Quiz Summary</Text>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Difficulty:</Text>
-            <Text style={styles.summaryValue}>{selectedDifficulty}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Period:</Text>
-            <Text style={styles.summaryValue}>{selectedCategory}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Region:</Text>
-            <Text style={styles.summaryValue}>{selectedRegion}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Questions:</Text>
-            <Text style={styles.summaryValue}>{questionCount}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Time:</Text>
-            <Text style={styles.summaryValue}>{timeLimit} minutes</Text>
-          </View>
-        </Animatable.View>
-
-        {/* Start Quiz Button */}
-        <Animatable.View animation="fadeInUp" delay={1400} style={styles.startButtonContainer}>
-          <TouchableOpacity onPress={startQuizHandler} activeOpacity={0.8}>
-            <LinearGradient
-              colors={['#FF6B35', '#F7931E']}
-              style={styles.startButton}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Icon name="play-arrow" size={24} color="#fff" />
-              <Text style={styles.startButtonText}>Start Quiz</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </Animatable.View>
-      </ScrollView>
+      <View style={styles.footer}>
+        <TouchableOpacity
+          onPress={nextStep}
+          style={styles.primaryButton}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={['#FF6B35', '#F7931E']}
+            style={styles.buttonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.buttonText}>
+              {currentStep === 2 ? "START QUIZ" : "CONTINUE"}
+            </Text>
+            <Icon name={currentStep === 2 ? "bolt" : "arrow-forward"} size={22} color="#fff" style={{ marginLeft: 8 }} />
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-const createStyles = (isDark: boolean) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: isDark ? '#121212' : '#f5f5f5',
   },
-  header: {
-    padding: 20,
-    paddingTop: 50,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  backButton: {
-    marginBottom: 10,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
-    marginTop: 5,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 15,
-    marginTop: 20,
-  },
-  optionCard: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  selectedOptionCard: {
-    borderColor: '#FF6B35',
-    elevation: 4,
-    shadowOpacity: 0.2,
-  },
-  optionHeader: {
+  topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    justifyContent: 'space-between',
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
-  optionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: isDark ? '#fff' : '#333',
+  iconButton: {
+    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 12,
+  },
+  progressDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+  },
+  activeDot: {
+    width: 24,
+    backgroundColor: '#fff',
+  },
+  completedDot: {
+    backgroundColor: 'rgba(255,255,255,0.8)',
+  },
+  mainContent: {
     flex: 1,
-    marginLeft: 10,
+    paddingHorizontal: 25,
+    paddingTop: 30,
   },
-  selectedOptionTitle: {
-    color: '#FF6B35',
+  stepContainer: {
+    flex: 1,
   },
-  optionDescription: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-    marginLeft: 34,
+  stepTitle: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#333',
+    marginBottom: 8,
   },
-  selectedOptionDescription: {
-    color: isDark ? '#fff' : '#333',
+  stepSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 40,
   },
-  numberSelectorContainer: {
-    marginBottom: 20,
+  diffCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10 },
+      android: { elevation: 4 }
+    }),
   },
-  numberOptions: {
+  diffIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  diffTextContainer: {
+    flex: 1,
+  },
+  diffLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 2,
+  },
+  diffDesc: {
+    fontSize: 13,
+    color: '#888',
+  },
+  geoGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
   },
-  numberOption: {
+  geoCardWrapper: {
+    width: '48%',
+    aspectRatio: 1,
+  },
+  geoCard: {
     flex: 1,
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 5,
-    alignItems: 'center',
-    borderWidth: 2,
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 3,
     borderColor: 'transparent',
   },
-  selectedNumberOption: {
+  selectedGeoCard: {
     borderColor: '#FF6B35',
-    backgroundColor: '#FF6B35',
   },
-  numberOptionText: {
+  geoGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 15,
+  },
+  geoLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: isDark ? '#fff' : '#333',
-  },
-  selectedNumberOptionText: {
-    color: '#fff',
-  },
-  summaryCard: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    borderRadius: 15,
-    padding: 20,
-    marginTop: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  summaryTitle: {
-    fontSize: 18,
     fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 15,
+    color: '#fff',
+    marginTop: 10,
     textAlign: 'center',
   },
-  summaryRow: {
+  infoBox: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: isDark ? '#333' : '#f0f0f0',
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: isDark ? '#fff' : '#333',
-    textTransform: 'capitalize',
-  },
-  startButtonContainer: {
+    backgroundColor: 'rgba(255, 107, 53, 0.1)',
+    padding: 15,
+    borderRadius: 15,
     marginTop: 30,
-    marginBottom: 20,
   },
-  startButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  infoText: {
+    fontSize: 13,
+    color: '#FF6B35',
+    marginLeft: 10,
+    flex: 1,
+    fontWeight: '600',
+  },
+  paramSection: {
+    marginBottom: 30,
+  },
+  paramLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#444',
+    marginBottom: 15,
+  },
+  chipContainer: {
+    paddingBottom: 10,
+  },
+  chip: {
+    width: 65,
+    height: 65,
+    borderRadius: 20,
     justifyContent: 'center',
-    padding: 18,
-    borderRadius: 25,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 2,
   },
-  startButtonText: {
+  selectedChip: {
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
+  },
+  chipText: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#666',
+  },
+  selectedChipText: {
     color: '#fff',
-    marginLeft: 10,
+  },
+  summaryBox: {
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  summaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  summaryText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#666',
+    letterSpacing: 1,
+  },
+  footer: {
+    padding: 25,
+    backgroundColor: 'transparent',
+  },
+  primaryButton: {
+    borderRadius: 25,
+    overflow: 'hidden',
+    height: 60,
+  },
+  buttonGradient: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
   },
 });
 

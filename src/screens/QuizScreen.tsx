@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,35 +12,22 @@ import {
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
-import { answerQuestion, nextQuestion, previousQuestion, endQuiz, updateTimer } from '../store/slices/quizSlice';
+import { answerQuestion, nextQuestion, endQuiz, updateTimer } from '../store/slices/quizSlice';
 import {
   X,
   Timer,
   CheckCircle2,
   XCircle,
   Info,
-  ChevronRight,
-  ChevronLeft,
-  Flag,
   ArrowRight,
   Zap,
-  Award
+  Trophy
 } from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
-  FadeInUp,
-  FadeInRight,
-  FadeInLeft,
   Layout,
-  BounceIn,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-  interpolateColor,
-  interpolate
 } from 'react-native-reanimated';
-import { Colors, getThemeColors } from '../constants/Colors';
+import * as Animatable from 'react-native-animatable';
 
 const { width } = Dimensions.get('window');
 
@@ -52,19 +39,11 @@ const QuizScreen = ({ navigation }: any) => {
   const [timeLeft, setTimeLeft] = useState(quiz.timeRemaining);
 
   const isDark = user.preferences.theme === 'dark';
-  const themeColors = getThemeColors(isDark);
-  const styles = createStyles(isDark, themeColors);
-  const timerProgress = useSharedValue(quiz.timeRemaining / 60);
-
-  const isStudyMode = quiz.quizMode === 'study';
   const currentQuestion = quiz.currentQuiz[quiz.currentQuestionIndex];
   const progress = (quiz.currentQuestionIndex + 1) / quiz.currentQuiz.length;
   const isLastQuestion = quiz.currentQuestionIndex === quiz.currentQuiz.length - 1;
-  const isFirstQuestion = quiz.currentQuestionIndex === 0;
 
   useEffect(() => {
-    if (isStudyMode) return;
-
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -72,13 +51,12 @@ const QuizScreen = ({ navigation }: any) => {
           return 0;
         }
         dispatch(updateTimer(prev - 1));
-        timerProgress.value = withTiming((prev - 1) / 60, { duration: 1000 });
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isStudyMode]);
+  }, [dispatch]);
 
   const handleTimeUp = () => {
     Alert.alert(
@@ -97,7 +75,7 @@ const QuizScreen = ({ navigation }: any) => {
     if (showExplanation) return;
     setSelectedAnswer(answerIndex);
     dispatch(answerQuestion(answerIndex));
-    setShowExplanation(true);
+    setTimeout(() => setShowExplanation(true), 300);
   };
 
   const handleNextQuestion = () => {
@@ -108,14 +86,6 @@ const QuizScreen = ({ navigation }: any) => {
       setSelectedAnswer(null);
       setShowExplanation(false);
     }
-  };
-
-  const handlePreviousQuestion = () => {
-    dispatch(previousQuestion());
-    // In study mode, we can show what the user selected if we wanted, 
-    // but for now let's just reset or keep it simple.
-    setSelectedAnswer(quiz.userAnswers[quiz.currentQuestionIndex - 1] ?? null);
-    setShowExplanation(quiz.userAnswers[quiz.currentQuestionIndex - 1] !== undefined);
   };
 
   const handleQuitQuiz = () => {
@@ -135,464 +105,361 @@ const QuizScreen = ({ navigation }: any) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!currentQuestion) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No questions available</Text>
-      </View>
-    );
-  }
-
-  const Option = ({ option, index }: { option: string, index: number }) => {
-    const isCorrect = index === currentQuestion.correctAnswer;
-    const isSelected = index === selectedAnswer;
-    const isIncorrectSelection = isSelected && !isCorrect;
-    const scale = useSharedValue(1);
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }]
-    }));
-
-    let borderColor = 'transparent';
-    let backgroundColor = themeColors.surface;
-
-    if (showExplanation) {
-      if (isCorrect) {
-        borderColor = Colors.quiz.correct;
-        backgroundColor = isDark ? '#1B2E1E' : '#E8F5E9';
-      } else if (isIncorrectSelection) {
-        borderColor = Colors.quiz.incorrect;
-        backgroundColor = isDark ? '#3E1F1F' : '#FFEBEE';
-      }
-    } else if (isSelected) {
-      borderColor = Colors.primary;
+  const getBackgroundGradient = () => {
+    if (!currentQuestion) return isDark ? ['#1A1F2E', '#0F1419'] : ['#F8F9FA', '#E2E8F0'];
+    switch (currentQuestion.category) {
+      case 'ancient': return isDark ? ['#141E14', '#0A0F0A'] : ['#E8F5E9', '#C8E6C9'];
+      case 'medieval': return isDark ? ['#1E1A14', '#140F0A'] : ['#FFF3E0', '#FFE0B2'];
+      case 'modern': return isDark ? ['#141A1E', '#0A0F14'] : ['#E3F2FD', '#BBDEFB'];
+      default: return isDark ? ['#1A1F2E', '#0F1419'] : ['#F8F9FA', '#E2E8F0'];
     }
-
-    return (
-      <Animated.View
-        entering={FadeInUp.delay(index * 100).springify()}
-        style={[animatedStyle, styles.optionWrapper]}
-      >
-        <TouchableOpacity
-          onPressIn={() => { if (!showExplanation) scale.value = withSpring(0.98); }}
-          onPressOut={() => { if (!showExplanation) scale.value = withSpring(1); }}
-          onPress={() => handleAnswerSelect(index)}
-          style={[styles.option, { borderColor, backgroundColor }]}
-          disabled={showExplanation}
-          activeOpacity={0.9}
-        >
-          <View style={styles.optionContent}>
-            <View style={[styles.optionIndex, {
-              backgroundColor: isSelected || (showExplanation && isCorrect) ? Colors.primary : isDark ? '#2D3748' : '#F0F2F5'
-            }]}>
-              <Text style={[styles.optionIndexText, {
-                color: isSelected || (showExplanation && isCorrect) ? '#fff' : themeColors.textSecondary
-              }]}>
-                {String.fromCharCode(65 + index)}
-              </Text>
-            </View>
-            <Text style={[styles.optionText, {
-              color: (showExplanation && isCorrect) ? (isDark ? '#81C784' : '#2E7D32') :
-                (showExplanation && isIncorrectSelection) ? (isDark ? '#E57373' : '#C62828') :
-                  themeColors.text
-            }]}>
-              {option}
-            </Text>
-            {showExplanation && (
-              isCorrect ? <CheckCircle2 size={20} color={isDark ? '#81C784' : Colors.quiz.correct} /> :
-                isIncorrectSelection ? <XCircle size={20} color={isDark ? '#E57373' : Colors.quiz.incorrect} /> : null
-            )}
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
   };
+
+  if (!currentQuestion) return null;
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Dynamic Header */}
-      <View style={styles.topSection}>
-        <LinearGradient
-          colors={isDark ? ['#1A1F2E', '#0F1419'] : [Colors.primary, '#E55A2B']}
-          style={styles.header}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={handleQuitQuiz} style={styles.iconBtn}>
-              <X size={24} color="#fff" />
-            </TouchableOpacity>
+      <LinearGradient colors={getBackgroundGradient() as any} style={styles.fullBg} />
 
-            <View style={styles.timerWrapper}>
-              <Timer size={18} color="#fff" />
-              <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-            </View>
+      {/* HUD Header */}
+      <View style={styles.hudHeader}>
+        <View style={styles.hudTop}>
+          <TouchableOpacity onPress={handleQuitQuiz} style={styles.hudIconBtn}>
+            <X size={22} color="#fff" />
+          </TouchableOpacity>
 
-            <View style={styles.scoreBadge}>
-              <Award size={16} color={Colors.warning} />
-              <Text style={styles.scoreText}>{quiz.score}</Text>
-            </View>
+          <View style={styles.hudTimer}>
+            <Timer size={16} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.hudTimerText}>{formatTime(timeLeft)}</Text>
           </View>
 
-          <View style={styles.progressSection}>
-            <View style={styles.progressTextRow}>
-              <Text style={styles.progressLabel}>Question {quiz.currentQuestionIndex + 1}/{quiz.currentQuiz.length}</Text>
-              <Text style={styles.progressPercent}>{Math.round(progress * 100)}% Complete</Text>
-            </View>
-            <View style={styles.progressTrack}>
-              <Animated.View style={[styles.progressIndicator, { width: `${progress * 100}%` }]} />
-            </View>
+          <View style={styles.hudScore}>
+            <Trophy size={16} color="#FFD700" style={{ marginRight: 6 }} />
+            <Text style={styles.hudScoreText}>{quiz.score}</Text>
           </View>
-        </LinearGradient>
-      </View>
-
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        layout={Layout.springify()}
-      >
-        {/* Question Card */}
-        <Animated.View
-          entering={FadeInUp.springify()}
-          key={`q-${quiz.currentQuestionIndex}`}
-          style={styles.questionCard}
-        >
-          <View style={styles.cardHeader}>
-            <View style={[styles.difficultyTag, { backgroundColor: `${getDifficultyColor(currentQuestion.difficulty)}20` }]}>
-              <Zap size={12} color={getDifficultyColor(currentQuestion.difficulty)} />
-              <Text style={[styles.difficultyLabel, { color: getDifficultyColor(currentQuestion.difficulty) }]}>
-                {currentQuestion.difficulty.toUpperCase()}
-              </Text>
-            </View>
-            <Text style={styles.ptsLabel}>+{currentQuestion.points} pts</Text>
-          </View>
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
-        </Animated.View>
-
-        {/* Options List */}
-        <View style={styles.optionsList}>
-          {currentQuestion.options.map((opt, idx) => <Option key={`${quiz.currentQuestionIndex}-${idx}`} option={opt} index={idx} />)}
         </View>
 
-        {/* Explanation Card */}
-        {showExplanation && (
-          <Animated.View entering={BounceIn} style={styles.explanationCard}>
-            <LinearGradient
-              colors={isDark ? ['#2D3748', '#1A1F2E'] : ['#F8F9FA', '#EDF2F7']}
-              style={styles.explanationContent}
-            >
-              <View style={styles.explanationHeader}>
-                <Info size={18} color={Colors.primary} />
-                <Text style={styles.explanationTitle}>Detailed Explanation</Text>
-              </View>
-              <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
-            </LinearGradient>
-          </Animated.View>
-        )}
-      </Animated.ScrollView>
-
-      {/* Floating Action Button */}
-      {(showExplanation || isStudyMode) && (
-        <Animated.View entering={FadeInUp} style={styles.footer}>
-          <View style={styles.footerActions}>
-            {isStudyMode && (
-              <TouchableOpacity
-                onPress={handlePreviousQuestion}
-                style={[styles.backBtn, isFirstQuestion && { opacity: 0.5 }]}
-                disabled={isFirstQuestion}
-              >
-                <ChevronLeft size={20} color={themeColors.text} />
-                <Text style={styles.backBtnText}>Previous</Text>
-              </TouchableOpacity>
-            )}
-
-            {(showExplanation || isStudyMode) && (
-              <TouchableOpacity onPress={handleNextQuestion} style={styles.nextBtn}>
-                <LinearGradient
-                  colors={Colors.gradients.sunset}
-                  style={styles.nextBtnGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                >
-                  <Text style={styles.nextBtnText}>
-                    {isLastQuestion ? 'Finish Attempt' : 'Continue'}
-                  </Text>
-                  <ArrowRight size={20} color="#fff" />
-                </LinearGradient>
-              </TouchableOpacity>
-            )}
+        <View style={styles.hudProgress}>
+          <View style={styles.hudProgressLabel}>
+            <Text style={styles.hudProgressText}>QUES {quiz.currentQuestionIndex + 1}/{quiz.currentQuiz.length}</Text>
+            <Text style={styles.hudProgressText}>{Math.round(progress * 100)}%</Text>
           </View>
-        </Animated.View>
+          <View style={styles.hudProgressBarTrack}>
+            <Animated.View style={[styles.hudProgressBar, { width: `${progress * 100}%` }]} />
+          </View>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Animatable.View animation="fadeInDown" duration={500} style={[styles.questionCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+          <View style={styles.qHeader}>
+            <View style={styles.qMeta}>
+              <Zap size={14} color="#FF6B35" />
+              <Text style={styles.qDiff}>{currentQuestion.difficulty.toUpperCase()}</Text>
+              <Text style={[styles.qPoints, isDark && { color: '#888' }]}>+{currentQuestion.points} PTS</Text>
+            </View>
+            <Text style={styles.qCategory}>{currentQuestion.category.toUpperCase()}</Text>
+          </View>
+          <Text style={[styles.questionText, isDark && { color: '#fff' }]}>{currentQuestion.question}</Text>
+        </Animatable.View>
+
+        <View style={styles.optionsContainer}>
+          {currentQuestion.options.map((option, index) => {
+            const isSelected = selectedAnswer === index;
+            const isCorrect = index === currentQuestion.correctAnswer;
+            const isWrong = isSelected && !isCorrect;
+
+            let cardBg = isDark ? '#1E1E1E' : '#FFFFFF';
+            let borderColor = isDark ? '#333' : '#EEE';
+
+            if (showExplanation) {
+              if (isCorrect) {
+                cardBg = isDark ? '#1B2E1E' : '#E8F5E9';
+                borderColor = '#4CAF50';
+              } else if (isWrong) {
+                cardBg = isDark ? '#3E1F1F' : '#FFEBEE';
+                borderColor = '#F44336';
+              }
+            } else if (isSelected) {
+              borderColor = '#FF6B35';
+              cardBg = isDark ? '#2C201A' : '#FFF5F2';
+            }
+
+            return (
+              <Animatable.View
+                key={index}
+                animation="fadeInUp"
+                delay={index * 100}
+                duration={400}
+              >
+                <TouchableOpacity
+                  onPress={() => handleAnswerSelect(index)}
+                  disabled={showExplanation}
+                  activeOpacity={0.8}
+                  style={[styles.optionCard, { backgroundColor: cardBg, borderColor }]}
+                >
+                  <View style={[styles.optionIndex, { backgroundColor: isSelected ? '#FF6B35' : (isDark ? '#333' : '#F0F0F0') }]}>
+                    <Text style={[styles.optionIndexText, { color: isSelected ? '#fff' : (isDark ? '#fff' : '#666') }]}>
+                      {String.fromCharCode(65 + index)}
+                    </Text>
+                  </View>
+                  <Text style={[styles.optionText, { color: isDark ? '#fff' : '#333' }]}>{option}</Text>
+                  {showExplanation && isCorrect && <CheckCircle2 size={20} color="#4CAF50" />}
+                  {showExplanation && isWrong && <XCircle size={20} color="#F44336" />}
+                </TouchableOpacity>
+              </Animatable.View>
+            );
+          })}
+        </View>
+
+        {showExplanation && (
+          <Animatable.View animation="bounceIn" duration={600} style={styles.exBox}>
+            <View style={styles.exHeader}>
+              <Info size={16} color="#FF6B35" />
+              <Text style={styles.exTitle}>Insight</Text>
+            </View>
+            <Text style={styles.exText}>{currentQuestion.explanation}</Text>
+          </Animatable.View>
+        )}
+      </ScrollView>
+
+      {showExplanation && (
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={handleNextQuestion} style={styles.nextBtn}>
+            <LinearGradient
+              colors={['#FF6B35', '#F7931E']}
+              style={styles.nextBtnGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.nextBtnText}>{isLastQuestion ? 'FINISH' : 'NEXT'}</Text>
+              <ArrowRight size={22} color="#fff" />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
 };
 
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
-    case 'easy': return '#4CAF50';
-    case 'medium': return '#FF9800';
-    case 'hard': return '#F44336';
-    default: return '#718096';
-  }
-};
-
-const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: themeColors.background,
   },
-  topSection: {
-    backgroundColor: 'transparent',
+  fullBg: {
+    ...StyleSheet.absoluteFillObject,
   },
-  header: {
+  hudHeader: {
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    paddingBottom: 25,
   },
-  headerRow: {
+  hudTop: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 25,
   },
-  timerWrapper: {
+  hudIconBtn: {
+    padding: 10,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 14,
+  },
+  hudTimer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 6,
+    backgroundColor: 'rgba(255,107,53,0.4)',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  timerText: {
+  hudTimerText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '900',
+    fontSize: 18,
     fontVariant: ['tabular-nums'],
   },
-  scoreBadge: {
+  hudScore: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 4,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 22,
   },
-  scoreText: {
+  hudScoreText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '900',
+    fontSize: 16,
   },
-  progressSection: {
-    gap: 8,
+  hudProgress: {
+    marginTop: 5,
   },
-  progressTextRow: {
+  hudProgressLabel: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 10,
   },
-  progressLabel: {
+  hudProgressText: {
     color: 'rgba(255,255,255,0.8)',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
-  progressPercent: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  progressTrack: {
-    height: 6,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 3,
+  hudProgressBarTrack: {
+    height: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 5,
     overflow: 'hidden',
   },
-  progressIndicator: {
+  hudProgressBar: {
     height: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 3,
+    backgroundColor: '#FF6B35',
+    borderRadius: 5,
   },
   scrollContent: {
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 30,
     paddingBottom: 120,
   },
   questionCard: {
-    backgroundColor: themeColors.surface,
-    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     padding: 24,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderWidth: 1,
-    borderColor: isDark ? '#2D3748' : '#F0F2F5',
-    marginBottom: 24,
+    borderRadius: 28,
+    marginBottom: 30,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.15, shadowRadius: 24 },
+      android: { elevation: 10 }
+    }),
   },
-  cardHeader: {
+  qHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
-  difficultyTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    gap: 4,
-  },
-  difficultyLabel: {
-    fontSize: 10,
-    fontWeight: '900',
-    letterSpacing: 0.5,
-  },
-  ptsLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.primary,
-  },
-  questionText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: themeColors.text,
-    lineHeight: 28,
-  },
-  optionsList: {
-    gap: 12,
-  },
-  optionWrapper: {
-    width: '100%',
-  },
-  option: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  optionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  optionIndex: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  optionIndexText: {
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  optionText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    lineHeight: 22,
-  },
-  explanationCard: {
-    marginTop: 24,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: isDark ? '#2D3748' : '#EDF2F7',
-  },
-  explanationContent: {
-    padding: 20,
-  },
-  explanationHeader: {
+  qMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 12,
   },
-  explanationTitle: {
-    fontSize: 16,
+  qDiff: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#FF6B35',
+  },
+  qPoints: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#666',
+  },
+  qCategory: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#999',
+    letterSpacing: 1.2,
+  },
+  questionText: {
+    fontSize: 24,
     fontWeight: '800',
-    color: themeColors.text,
+    color: '#1A1A1A',
+    lineHeight: 32,
   },
-  explanationText: {
-    fontSize: 14,
-    color: themeColors.textSecondary,
-    lineHeight: 22,
+  optionsContainer: {
+    gap: 18,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    borderRadius: 24,
+    borderWidth: 2,
+    ...Platform.select({
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.08, shadowRadius: 12 },
+      android: { elevation: 4 }
+    }),
+  },
+  optionIndex: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 18,
+  },
+  optionIndexText: {
+    fontWeight: '900',
+    fontSize: 18,
+  },
+  optionText: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '700',
+    lineHeight: 24,
+  },
+  exBox: {
+    marginTop: 40,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 24,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  exHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 14,
+  },
+  exTitle: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: '#FF6B35',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  exText: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+    lineHeight: 24,
+    fontStyle: 'italic',
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 24,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    backgroundColor: themeColors.background,
-    borderTopWidth: 1,
-    borderTopColor: isDark ? '#2D3748' : '#EDF2F7',
-  },
-  footerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: isDark ? '#2D3748' : '#F0F2F5',
-  },
-  backBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: themeColors.text,
+    padding: 25,
+    paddingBottom: Platform.OS === 'ios' ? 45 : 30,
+    backgroundColor: 'transparent',
   },
   nextBtn: {
-    flex: 1,
+    borderRadius: 30,
+    overflow: 'hidden',
+    height: 65,
+    ...Platform.select({
+      ios: { shadowColor: '#FF6B35', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 15 },
+      android: { elevation: 12 }
+    }),
   },
   nextBtnGradient: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    borderRadius: 20,
+    alignItems: 'center',
     gap: 12,
   },
   nextBtnText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '900',
-  },
-  errorText: {
-    fontSize: 18,
-    color: themeColors.text,
-    textAlign: 'center',
-    marginTop: 100,
-    fontWeight: '700',
+    letterSpacing: 2.5,
   },
 });
 
