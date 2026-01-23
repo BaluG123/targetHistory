@@ -1,34 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
-  ScrollView,
   Dimensions,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  X,
+  Map as MapIcon,
+  Filter,
+  Layers,
+  Calendar,
+  Globe,
+  User,
+  ChevronDown,
+  Info
+} from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Animated, { FadeInDown, FadeInUp, SlideInUp, SlideOutDown } from 'react-native-reanimated';
+import { Colors, getThemeColors } from '../constants/Colors';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const MapScreen = () => {
   const { history, user } = useSelector((state: RootState) => state);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [modalVisible, setModalVisible] = useState(false);
   const [mapFilter, setMapFilter] = useState<'all' | 'ancient' | 'medieval' | 'modern'>('all');
-  
-  const isDark = user.preferences.theme === 'dark';
-  const styles = createStyles(isDark);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filteredEvents = history.events.filter(event => {
-    if (mapFilter === 'all') return event.latitude && event.longitude;
-    return event.category === mapFilter && event.latitude && event.longitude;
-  });
+  const isDark = user.preferences.theme === 'dark';
+  const themeColors = getThemeColors(isDark);
+  const styles = createStyles(isDark, themeColors);
+
+  const filteredEvents = useMemo(() => {
+    return history.events.filter(event => {
+      const hasCoords = event.latitude && event.longitude;
+      if (!hasCoords) return false;
+      return mapFilter === 'all' || event.category === mapFilter;
+    });
+  }, [history.events, mapFilter]);
 
   const generateMapHTML = () => {
     const markers = filteredEvents.map(event => ({
@@ -46,98 +62,88 @@ const MapScreen = () => {
     <html>
     <head>
         <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Historical Events Map</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
         <style>
-            body { margin: 0; padding: 0; }
+            body { margin: 0; padding: 0; background: ${isDark ? '#0F1419' : '#FAFBFC'}; }
             #map { height: 100vh; width: 100vw; }
-            .custom-popup {
-                font-family: Arial, sans-serif;
-                max-width: 250px;
+            .custom-popup .leaflet-popup-content-wrapper {
+                background: ${isDark ? '#1A1F2E' : '#FFFFFF'};
+                color: ${isDark ? '#FFFFFF' : '#2C3E50'};
+                border-radius: 12px;
+                padding: 4px;
             }
-            .popup-title {
-                font-weight: bold;
-                color: #FF6B35;
-                margin-bottom: 5px;
-                font-size: 14px;
-            }
-            .popup-date {
-                color: #666;
-                font-size: 12px;
-                margin-bottom: 8px;
-            }
-            .popup-description {
-                font-size: 12px;
-                line-height: 1.4;
-                color: #333;
-            }
-            .popup-category {
-                display: inline-block;
-                background: #FF6B35;
-                color: white;
-                padding: 2px 8px;
-                border-radius: 10px;
-                font-size: 10px;
-                margin-top: 8px;
-                text-transform: capitalize;
-            }
+            .popup-container { font-family: -apple-system, sans-serif; }
+            .popup-title { font-weight: 800; color: ${Colors.primary}; margin-bottom: 4px; }
+            .popup-date { font-size: 11px; font-weight: 600; color: ${isDark ? '#B8BCC8' : '#7F8C8D'}; margin-bottom: 8px; }
+            
+            /* Custom Cluster Styles */
+            .marker-cluster-small { background-color: rgba(255, 107, 53, 0.6); }
+            .marker-cluster-small div { background-color: rgba(255, 107, 53, 0.6); color: white; font-weight: bold; }
+            .marker-cluster-medium { background-color: rgba(255, 107, 53, 0.8); }
+            .marker-cluster-medium div { background-color: rgba(255, 107, 53, 0.8); color: white; font-weight: bold; }
+            .marker-cluster-large { background-color: rgba(255, 107, 53, 0.9); }
+            .marker-cluster-large div { background-color: rgba(255, 107, 53, 0.9); color: white; font-weight: bold; }
         </style>
     </head>
     <body>
         <div id="map"></div>
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
         <script>
-            var map = L.map('map').setView([20.5937, 78.9629], 4);
+            var map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 4);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+            var tileUrl = '${isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png' : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'}';
+            L.tileLayer(tileUrl, {
+                attribution: ''
             }).addTo(map);
 
             var markers = ${JSON.stringify(markers)};
+            var clusterGroup = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                spiderfyOnMaxZoom: true
+            });
             
             var categoryColors = {
-                'ancient': '#4CAF50',
-                'medieval': '#FF9800',
-                'modern': '#2196F3'
+                'ancient': '${Colors.ancient}',
+                'medieval': '${Colors.medieval}',
+                'modern': '${Colors.modern}'
             };
 
             markers.forEach(function(marker) {
-                var color = categoryColors[marker.category] || '#FF6B35';
-                
+                var color = categoryColors[marker.category] || '${Colors.primary}';
                 var customIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: '<div style="background-color:' + color + '; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+                    html: '<div style="background-color:' + color + '; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
                     iconSize: [20, 20],
                     iconAnchor: [10, 10]
                 });
 
-                var popupContent = 
-                    '<div class="custom-popup">' +
-                    '<div class="popup-title">' + marker.title + '</div>' +
-                    '<div class="popup-date">' + marker.date + '</div>' +
-                    '<div class="popup-description">' + marker.description.substring(0, 100) + '...</div>' +
-                    '<div class="popup-category">' + marker.category + '</div>' +
-                    '</div>';
-
-                L.marker([marker.lat, marker.lng], {icon: customIcon})
-                    .addTo(map)
-                    .bindPopup(popupContent)
-                    .on('click', function() {
-                        window.ReactNativeWebView.postMessage(JSON.stringify({
-                            type: 'markerClick',
-                            eventId: marker.id
-                        }));
-                    });
+                var lMarker = L.marker([marker.lat, marker.lng], { icon: customIcon });
+                lMarker.on('click', function() {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                        type: 'markerClick',
+                        eventId: marker.id
+                    }));
+                });
+                clusterGroup.addLayer(lMarker);
             });
 
-            // Fit map to show all markers
+            map.addLayer(clusterGroup);
+
             if (markers.length > 0) {
-                var group = new L.featureGroup(map._layers);
-                if (Object.keys(group._layers).length > 0) {
-                    map.fitBounds(group.getBounds().pad(0.1));
-                }
+                map.fitBounds(clusterGroup.getBounds().pad(0.1));
             }
+
+            // Sync interactions
+            document.addEventListener('message', function(e) {
+                var data = JSON.parse(e.data);
+                if (data.type === 'centerOn') {
+                    map.setView([data.lat, data.lng], 8);
+                }
+            });
         </script>
     </body>
     </html>
@@ -148,344 +154,380 @@ const MapScreen = () => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
       if (data.type === 'markerClick') {
-        const event = history.events.find(e => e.id === data.eventId);
-        if (event) {
-          setSelectedEvent(event);
-          setModalVisible(true);
-        }
+        const ev = history.events.find(e => e.id === data.eventId);
+        if (ev) setSelectedEvent(ev);
       }
-    } catch (error) {
-      console.log('Error parsing WebView message:', error);
-    }
+    } catch (e) { console.warn(e); }
   };
-
-  const FilterButton = ({ filter, label }: { filter: 'all' | 'ancient' | 'medieval' | 'modern', label: string }) => (
-    <TouchableOpacity
-      onPress={() => setMapFilter(filter)}
-      style={[
-        styles.filterButton,
-        mapFilter === filter && styles.activeFilterButton
-      ]}
-    >
-      <Text style={[
-        styles.filterButtonText,
-        mapFilter === filter && styles.activeFilterButtonText
-      ]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient
-        colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
-        style={styles.header}
-      >
-        <Text style={styles.headerTitle}>Historical Map</Text>
-        <Text style={styles.headerSubtitle}>Explore events across time and space</Text>
-      </LinearGradient>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor="transparent" translucent />
 
-      {/* Filters */}
-      <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <FilterButton filter="all" label="All Periods" />
-          <FilterButton filter="ancient" label="Ancient" />
-          <FilterButton filter="medieval" label="Medieval" />
-          <FilterButton filter="modern" label="Modern" />
-        </ScrollView>
-      </View>
-
-      {/* Map */}
-      <View style={styles.mapContainer}>
+      {/* Map View */}
+      <View style={styles.mapFrame}>
         <WebView
           source={{ html: generateMapHTML() }}
           style={styles.webview}
           onMessage={handleWebViewMessage}
+          scrollEnabled={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.loadingContainer}>
-              <Icon name="map" size={50} color="#FF6B35" />
-              <Text style={styles.loadingText}>Loading Map...</Text>
-            </View>
-          )}
         />
       </View>
 
-      {/* Legend */}
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Legend</Text>
-        <View style={styles.legendItems}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
-            <Text style={styles.legendText}>Ancient</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#FF9800' }]} />
-            <Text style={styles.legendText}>Medieval</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#2196F3' }]} />
-            <Text style={styles.legendText}>Modern</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Event Detail Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Event Details</Text>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <Icon name="close" size={24} color="#666" />
-              </TouchableOpacity>
+      {/* Floating Header */}
+      <Animated.View entering={FadeInDown.delay(200)} style={styles.header}>
+        <LinearGradient
+          colors={isDark ? ['#1A1F2E', '#0F1419'] : ['#FFF', '#F8F9FA']}
+          style={styles.headerContent}
+        >
+          <View style={styles.headerTop}>
+            <View style={styles.headerTitleGroup}>
+              <Globe size={20} color={Colors.primary} />
+              <Text style={styles.headerTitle}>Historical Atlas</Text>
             </View>
-            
-            {selectedEvent && (
-              <ScrollView style={styles.modalBody}>
-                <Text style={styles.eventTitle}>{selectedEvent.title}</Text>
-                <Text style={styles.eventDate}>{selectedEvent.date}</Text>
-                
-                <View style={styles.eventTags}>
-                  <View style={[styles.tag, { backgroundColor: '#FF6B35' }]}>
-                    <Text style={styles.tagText}>{selectedEvent.category}</Text>
-                  </View>
-                  <View style={[styles.tag, { backgroundColor: '#2196F3' }]}>
-                    <Text style={styles.tagText}>{selectedEvent.region}</Text>
-                  </View>
+            <TouchableOpacity
+              onPress={() => setShowFilters(!showFilters)}
+              style={[styles.filterToggle, showFilters && styles.activeFilterToggle]}
+            >
+              <Filter size={18} color={showFilters ? '#fff' : Colors.primary} />
+            </TouchableOpacity>
+          </View>
+
+          {showFilters && (
+            <Animated.View entering={FadeInUp} style={styles.filtersRow}>
+              {(['all', 'ancient', 'medieval', 'modern'] as const).map(cat => (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setMapFilter(cat)}
+                  style={[styles.filterChip, mapFilter === cat && styles.activeFilterChip]}
+                >
+                  <Text style={[styles.filterText, mapFilter === cat && styles.activeFilterText]}>
+                    {cat.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </Animated.View>
+          )}
+        </LinearGradient>
+      </Animated.View>
+
+      {/* Event Details Sheet */}
+      {selectedEvent && (
+        <Animated.View
+          entering={SlideInUp}
+          exiting={SlideOutDown}
+          style={styles.detailSheet}
+        >
+          <View style={styles.sheetHandle} />
+          <View style={styles.sheetHeader}>
+            <View style={[styles.periodTag, { backgroundColor: `${getCategoryColor(selectedEvent.category)}20` }]}>
+              <Text style={[styles.periodTagText, { color: getCategoryColor(selectedEvent.category) }]}>
+                {selectedEvent.category.toUpperCase()}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => setSelectedEvent(null)} style={styles.closeBtn}>
+              <X size={20} color={themeColors.textTertiary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.sheetBody}>
+            <Text style={styles.eventTitle}>{selectedEvent.title}</Text>
+            <View style={styles.metaRow}>
+              <Calendar size={14} color={Colors.primary} />
+              <Text style={styles.eventDate}>{selectedEvent.date}</Text>
+              <View style={styles.dot} />
+              <Globe size={14} color={Colors.secondary} />
+              <Text style={styles.eventRegion}>{selectedEvent.region}</Text>
+            </View>
+
+            <Text style={styles.eventDesc}>{selectedEvent.description}</Text>
+
+            {selectedEvent.significance && (
+              <View style={styles.significanceBox}>
+                <View style={styles.sigHeader}>
+                  <Info size={14} color={Colors.primary} />
+                  <Text style={styles.sigTitle}>Aspirant's Note</Text>
                 </View>
+                <Text style={styles.sigText}>{selectedEvent.significance}</Text>
+              </View>
+            )}
 
-                <Text style={styles.eventDescription}>{selectedEvent.description}</Text>
-                
-                {selectedEvent.significance && (
-                  <View style={styles.significanceContainer}>
-                    <Text style={styles.significanceTitle}>Historical Significance:</Text>
-                    <Text style={styles.significanceText}>{selectedEvent.significance}</Text>
-                  </View>
-                )}
-
-                {selectedEvent.rulers && selectedEvent.rulers.length > 0 && (
-                  <View style={styles.rulersContainer}>
-                    <Text style={styles.rulersTitle}>Key Figures:</Text>
-                    {selectedEvent.rulers.map((ruler: string, index: number) => (
-                      <Text key={index} style={styles.rulerText}>• {ruler}</Text>
-                    ))}
-                  </View>
-                )}
-              </ScrollView>
+            {selectedEvent.rulers && selectedEvent.rulers.length > 0 && (
+              <View style={styles.rulersSection}>
+                <View style={styles.sigHeader}>
+                  <User size={14} color={Colors.secondary} />
+                  <Text style={styles.sigTitle}>Key Figures</Text>
+                </View>
+                <View style={styles.rulersList}>
+                  {selectedEvent.rulers.map((r: string) => (
+                    <View key={r} style={styles.rulerChip}>
+                      <Text style={styles.rulerText}>{r}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
             )}
           </View>
+        </Animated.View>
+      )}
+
+      {/* Legend Overlay */}
+      <View style={styles.legend}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.ancient }]} />
+          <Text style={styles.legendLabel}>Ancient</Text>
         </View>
-      </Modal>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.medieval }]} />
+          <Text style={styles.legendLabel}>Medieval</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: Colors.modern }]} />
+          <Text style={styles.legendLabel}>Modern</Text>
+        </View>
+      </View>
     </View>
   );
 };
 
-const createStyles = (isDark: boolean) => StyleSheet.create({
+const getCategoryColor = (category: string) => {
+  switch (category) {
+    case 'ancient': return Colors.ancient;
+    case 'medieval': return Colors.medieval;
+    case 'modern': return Colors.modern;
+    default: return Colors.primary;
+  }
+};
+
+const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: isDark ? '#121212' : '#f5f5f5',
+    backgroundColor: themeColors.background,
   },
-  header: {
-    padding: 20,
-    paddingTop: 50,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#fff',
-    opacity: 0.8,
-    marginTop: 5,
-  },
-  filtersContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  filterButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
-    backgroundColor: isDark ? '#2C2C2C' : '#e0e0e0',
-    marginRight: 10,
-  },
-  activeFilterButton: {
-    backgroundColor: '#FF6B35',
-  },
-  filterButtonText: {
-    fontSize: 14,
-    color: isDark ? '#fff' : '#666',
-  },
-  activeFilterButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  mapContainer: {
-    flex: 1,
-    margin: 20,
-    borderRadius: 15,
-    overflow: 'hidden',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+  mapFrame: {
+    ...StyleSheet.absoluteFillObject,
   },
   webview: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
+  header: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    left: 20,
+    right: 20,
+    zIndex: 10,
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: isDark ? '#fff' : '#333',
+  headerContent: {
+    borderRadius: 20,
+    padding: 16,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    borderWidth: 1,
+    borderColor: isDark ? '#2D3748' : '#EDF2F7',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: themeColors.text,
+  },
+  filterToggle: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: isDark ? '#2D3748' : '#F0F2F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeFilterToggle: {
+    backgroundColor: Colors.primary,
+  },
+  filtersRow: {
+    flexDirection: 'row',
+    marginTop: 16,
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: isDark ? '#2D3748' : '#EDF2F7',
+  },
+  activeFilterChip: {
+    borderColor: Colors.primary,
+    backgroundColor: `${Colors.primary}15`,
+  },
+  filterText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: themeColors.textSecondary,
+  },
+  activeFilterText: {
+    color: Colors.primary,
+  },
+  detailSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: themeColors.surface,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    maxHeight: height * 0.7,
+  },
+  sheetHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: themeColors.border,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  periodTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  periodTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  closeBtn: {
+    padding: 4,
+  },
+  sheetBody: {
+    gap: 12,
+  },
+  eventTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: themeColors.text,
+    lineHeight: 30,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  eventDate: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: themeColors.text,
+  },
+  eventRegion: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: themeColors.textSecondary,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: themeColors.textTertiary,
+  },
+  eventDesc: {
+    fontSize: 15,
+    color: themeColors.textSecondary,
+    lineHeight: 22,
+    marginTop: 4,
+  },
+  significanceBox: {
+    backgroundColor: `${Colors.primary}10`,
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 8,
+  },
+  sigHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  sigTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: themeColors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  sigText: {
+    fontSize: 14,
+    color: themeColors.textSecondary,
+    lineHeight: 20,
+  },
+  rulersSection: {
+    marginTop: 8,
+  },
+  rulersList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  rulerChip: {
+    backgroundColor: isDark ? '#2D3748' : '#F0F2F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  rulerText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: themeColors.text,
   },
   legend: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    margin: 20,
-    padding: 15,
-    borderRadius: 10,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  legendTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 10,
-  },
-  legendItems: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 100 : 80,
+    right: 20,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    padding: 10,
+    borderRadius: 12,
+    gap: 8,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
-  legendText: {
-    fontSize: 12,
-    color: isDark ? '#ccc' : '#666',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: isDark ? '#1E1E1E' : '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: height * 0.8,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: isDark ? '#333' : '#e0e0e0',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-  },
-  closeButton: {
-    padding: 5,
-  },
-  modalBody: {
-    padding: 20,
-  },
-  eventTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 10,
-  },
-  eventDate: {
-    fontSize: 14,
-    color: '#FF6B35',
-    fontWeight: '600',
-    marginBottom: 15,
-  },
-  eventTags: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-    marginRight: 10,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#fff',
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  eventDescription: {
-    fontSize: 16,
-    color: isDark ? '#ccc' : '#666',
-    lineHeight: 24,
-    marginBottom: 20,
-  },
-  significanceContainer: {
-    marginBottom: 20,
-  },
-  significanceTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 10,
-  },
-  significanceText: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-    lineHeight: 22,
-  },
-  rulersContainer: {
-    marginBottom: 20,
-  },
-  rulersTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: isDark ? '#fff' : '#333',
-    marginBottom: 10,
-  },
-  rulerText: {
-    fontSize: 14,
-    color: isDark ? '#ccc' : '#666',
-    marginBottom: 5,
+  legendLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#2C3E50',
   },
 });
 

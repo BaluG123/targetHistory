@@ -76,6 +76,7 @@ const QuizSetupScreen = ({ navigation }: any) => {
     dispatch(startQuiz({
       questions: selectedQuestions,
       timeLimit: timeLimit * 60, // convert to seconds
+      mode: 'classic', // default to classic mode
     }));
 
     navigation.navigate('Quiz');

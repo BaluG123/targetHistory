@@ -14,8 +14,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
-const { width } = Dimensions.get('window');
-
 const EventDetailScreen = ({ route, navigation }: any) => {
   const dispatch = useDispatch();
   const { history, user } = useSelector((state: RootState) => state);
@@ -129,8 +127,8 @@ const EventDetailScreen = ({ route, navigation }: any) => {
               <Icon name="person" size={24} color="#FF6B35" />
               <Text style={styles.infoTitle}>Key Figures</Text>
             </View>
-            {event.rulers.map((ruler, index) => (
-              <View key={index} style={styles.rulerItem}>
+            {event.rulers.map((ruler: string, _index: number) => (
+              <View key={_index} style={styles.rulerItem}>
                 <Icon name="account-circle" size={20} color="#666" />
                 <Text style={styles.rulerName}>{ruler}</Text>
               </View>

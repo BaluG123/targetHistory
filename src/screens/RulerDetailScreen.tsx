@@ -77,7 +77,7 @@ const RulerDetailScreen = ({ route, navigation }: any) => {
             <Icon name="star" size={24} color="#FF6B35" />
             <Text style={styles.cardTitle}>Major Achievements</Text>
           </View>
-          {ruler.achievements.map((achievement, index) => (
+          {ruler.achievements.map((achievement: string, index: number) => (
             <View key={index} style={styles.achievementItem}>
               <Icon name="check-circle" size={16} color="#4CAF50" />
               <Text style={styles.achievementText}>{achievement}</Text>

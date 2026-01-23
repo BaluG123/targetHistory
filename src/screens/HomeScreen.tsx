@@ -14,20 +14,32 @@ import { setEvents, setPeriods, setRulers } from '../store/slices/historySlice';
 import { setQuestions } from '../store/slices/quizSlice';
 import { historicalEvents, historicalPeriods, worldRulers } from '../data/historicalData';
 import { quizQuestions } from '../data/quizData';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  Trophy,
+  Zap,
+  BookOpen,
+  Map as MapIcon,
+  GraduationCap,
+  Flame,
+  TrendingUp,
+  ChevronRight,
+  BookMarked,
+  Lightbulb,
+  ArrowRight,
+  History as HistoryIcon
+} from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import * as Animatable from 'react-native-animatable';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, getThemeColors } from '../constants/Colors';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
-  const { user, history, quiz } = useSelector((state: RootState) => state);
+  const { user } = useSelector((state: RootState) => state);
   const theme = user.preferences.theme;
 
   useEffect(() => {
-    // Initialize data
     dispatch(setEvents(historicalEvents));
     dispatch(setPeriods(historicalPeriods));
     dispatch(setRulers(worldRulers));
@@ -38,23 +50,23 @@ const HomeScreen = ({ navigation }: any) => {
   const themeColors = getThemeColors(isDark);
   const styles = createStyles(isDark, themeColors);
 
-  const QuickStatsCard = ({ title, value, icon, color, delay }: any) => (
-    <Animatable.View animation="fadeInUp" delay={delay} style={[styles.statsCard, { borderLeftColor: color }]}>
+  const QuickStatsCard = ({ title, value, icon: IconComponent, color }: any) => (
+    <View style={[styles.statsCard, { borderLeftColor: color }]}>
       <View style={styles.statsContent}>
         <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
-          <Icon name={icon} size={24} color={color} />
+          <IconComponent size={20} color={color} />
         </View>
         <View style={styles.statsText}>
           <Text style={styles.statsValue}>{value}</Text>
           <Text style={styles.statsTitle}>{title}</Text>
         </View>
       </View>
-    </Animatable.View>
+    </View>
   );
 
-  const FeatureCard = ({ title, description, icon, gradient, onPress, delay }: any) => (
-    <Animatable.View animation="fadeInUp" delay={delay}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.featureCardContainer}>
+  const FeatureCard = ({ title, description, icon: IconComponent, gradient, onPress, delay }: any) => (
+    <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.featureCardContainer}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
         <LinearGradient
           colors={gradient}
           style={styles.featureCard}
@@ -62,22 +74,28 @@ const HomeScreen = ({ navigation }: any) => {
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.featureIconContainer}>
-            <Icon name={icon} size={32} color={Colors.white} />
+            <IconComponent size={24} color={Colors.white} />
           </View>
           <Text style={styles.featureTitle}>{title}</Text>
           <Text style={styles.featureDescription}>{description}</Text>
+          <View style={styles.featureAction}>
+            <ChevronRight size={14} color={Colors.white} />
+          </View>
         </LinearGradient>
       </TouchableOpacity>
-    </Animatable.View>
+    </Animated.View>
   );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
-      
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Header */}
-        <Animatable.View animation="fadeInDown" delay={200}>
+        <Animated.View entering={FadeInDown.duration(1000).springify()}>
           <LinearGradient
             colors={Colors.gradients.sunset}
             style={styles.header}
@@ -86,139 +104,130 @@ const HomeScreen = ({ navigation }: any) => {
           >
             <View style={styles.headerContent}>
               <View style={styles.headerText}>
-                <Text style={styles.welcomeText}>Welcome to</Text>
+                <Text style={styles.welcomeText}>Welcome back, Aspirant</Text>
                 <Text style={styles.appTitle}>Target History</Text>
-                <Text style={styles.subtitle}>Explore the fascinating world of history</Text>
+                <Text style={styles.subtitle}>Master history for your dreams.</Text>
               </View>
               <View style={styles.headerIcon}>
-                <Icon name="history-edu" size={40} color={Colors.white} />
+                <GraduationCap size={48} color={Colors.white} />
               </View>
             </View>
           </LinearGradient>
-        </Animatable.View>
+        </Animated.View>
 
         {/* Quick Stats */}
-        <View style={styles.statsContainer}>
+        <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.statsContainer}>
           <QuickStatsCard
-            title="Quiz Score"
+            title="Avg Score"
             value={`${user.stats.averageScore}%`}
-            icon="trending-up"
+            icon={TrendingUp}
             color={Colors.success}
-            delay={400}
           />
           <QuickStatsCard
             title="Level"
             value={user.level}
-            icon="star"
+            icon={Trophy}
             color={Colors.warning}
-            delay={500}
           />
           <QuickStatsCard
             title="Streak"
             value={user.stats.streak}
-            icon="local-fire-department"
+            icon={Flame}
             color={Colors.error}
-            delay={600}
           />
-        </View>
+        </Animated.View>
 
-        {/* Today's Highlight */}
-        <Animatable.View animation="fadeInUp" delay={700} style={styles.highlightCard}>
-          <LinearGradient
-            colors={[themeColors.surface, `${Colors.primary}10`]}
-            style={styles.highlightGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <View style={styles.highlightHeader}>
-              <Icon name="history" size={24} color={Colors.primary} />
-              <Text style={styles.sectionTitle}>Today in History</Text>
+        {/* Aspirant's Corner */}
+        <Animated.View entering={FadeInUp.delay(400).springify()} style={styles.aspirantCard}>
+          <View style={styles.aspirantHeader}>
+            <View style={styles.titleWithIcon}>
+              <Lightbulb size={20} color={Colors.primary} />
+              <Text style={styles.sectionTitle}>High-Yield Concept</Text>
             </View>
-            <View style={styles.highlightContent}>
-              <View style={styles.highlightText}>
-                <Text style={styles.highlightTitle}>Mauryan Empire Founded</Text>
-                <Text style={styles.highlightDate}>321 BCE - This Day</Text>
-                <Text style={styles.highlightDescription}>
-                  Chandragupta Maurya established the first pan-Indian empire, marking the beginning of a golden age in Indian history.
-                </Text>
+            <TouchableOpacity style={styles.seeAllButton}>
+              <Text style={styles.seeAllText}>Read More</Text>
+              <ArrowRight size={14} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.conceptBody}>
+            <Text style={styles.conceptTitle}>Battle of Buxar (1764)</Text>
+            <Text style={styles.conceptDescription}>
+              Key moment that established the English East India Company as the real master of Bengal, Bihar, and Odisha.
+            </Text>
+            <View style={styles.tagRow}>
+              <View style={[styles.tag, { backgroundColor: '#E3F2FD' }]}>
+                <Text style={[styles.tagText, { color: '#1976D2' }]}>UPSC Focus</Text>
+              </View>
+              <View style={[styles.tag, { backgroundColor: '#F1F8E9' }]}>
+                <Text style={[styles.tagText, { color: '#388E3C' }]}>Modern India</Text>
               </View>
             </View>
-          </LinearGradient>
-        </Animatable.View>
-
-        {/* Feature Cards */}
-        <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.featuresGrid}>
-            <FeatureCard
-              title="Start Quiz"
-              description="Test your knowledge with engaging quizzes"
-              icon="quiz"
-              gradient={Colors.gradients.royal}
-              onPress={() => navigation.navigate('Quiz')}
-              delay={800}
-            />
-            <FeatureCard
-              title="Explore History"
-              description="Discover events, maps, and timelines"
-              icon="explore"
-              gradient={Colors.gradients.ocean}
-              onPress={() => navigation.navigate('Explore')}
-              delay={900}
-            />
           </View>
-        </View>
+        </Animated.View>
 
-        {/* Coming Soon Preview */}
-        <View style={styles.featuresSection}>
-          <Text style={styles.sectionTitle}>Coming Soon</Text>
+        {/* Primary Modules */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Primary Modules</Text>
           <View style={styles.featuresGrid}>
             <FeatureCard
-              title="Video Lectures"
-              description="Expert lectures on historical topics"
-              icon="play-circle-filled"
-              gradient={['#95A5A6', '#BDC3C7']}
-              onPress={() => {}}
-              delay={1000}
+              title="Daily Quiz"
+              description="Fresh questions every day"
+              icon={Zap}
+              gradient={Colors.gradients.royal}
+              onPress={() => navigation.navigate('QuizSetup')}
+              delay={500}
             />
             <FeatureCard
-              title="Study Groups"
-              description="Connect with fellow history enthusiasts"
-              icon="group"
-              gradient={['#95A5A6', '#BDC3C7']}
-              onPress={() => {}}
-              delay={1100}
+              title="Atlas & Map"
+              description="Geo-political evolution"
+              icon={MapIcon}
+              gradient={Colors.gradients.ocean}
+              onPress={() => navigation.navigate('Map')}
+              delay={600}
+            />
+            <FeatureCard
+              title="Timeline"
+              description="Connect the dots"
+              icon={HistoryIcon}
+              gradient={Colors.gradients.sunset}
+              onPress={() => navigation.navigate('Explore')}
+              delay={700}
+            />
+            <FeatureCard
+              title="Library"
+              description="Deep dive into notes"
+              icon={BookMarked}
+              gradient={['#4568DC', '#B06AB3']}
+              onPress={() => { }}
+              delay={800}
             />
           </View>
         </View>
 
         {/* Recent Activity */}
-        <Animatable.View animation="fadeInUp" delay={1200} style={styles.activityCard}>
-          <View style={styles.activityHeader}>
-            <Icon name="history" size={24} color={Colors.primary} />
-            <Text style={styles.sectionTitle}>Recent Activity</Text>
-          </View>
+        <Animated.View entering={FadeInUp.delay(900).springify()} style={styles.activityCard}>
+          <Text style={styles.sectionTitle}>Performance Analytics</Text>
           <View style={styles.activityList}>
             <View style={styles.activityItem}>
-              <View style={[styles.activityIcon, { backgroundColor: `${Colors.quiz.correct}20` }]}>
-                <Icon name="quiz" size={16} color={Colors.quiz.correct} />
+              <View style={[styles.activityIcon, { backgroundColor: '#E8F5E9' }]}>
+                <TrendingUp size={16} color="#2E7D32" />
               </View>
-              <Text style={styles.activityText}>Completed Ancient India Quiz - 85%</Text>
+              <View style={styles.activityTextContainer}>
+                <Text style={styles.activityLabel}>Recent Improvement</Text>
+                <Text style={styles.activityValue}>+12% in Modern History</Text>
+              </View>
             </View>
             <View style={styles.activityItem}>
-              <View style={[styles.activityIcon, { backgroundColor: `${Colors.error}20` }]}>
-                <Icon name="favorite" size={16} color={Colors.error} />
+              <View style={[styles.activityIcon, { backgroundColor: '#FFF3E0' }]}>
+                <BookOpen size={16} color="#EF6C00" />
               </View>
-              <Text style={styles.activityText}>Added Ashoka's Edicts to favorites</Text>
-            </View>
-            <View style={styles.activityItem}>
-              <View style={[styles.activityIcon, { backgroundColor: `${Colors.secondary}20` }]}>
-                <Icon name="map" size={16} color={Colors.secondary} />
+              <View style={styles.activityTextContainer}>
+                <Text style={styles.activityLabel}>Focus Required</Text>
+                <Text style={styles.activityValue}>Vedic Literature concepts</Text>
               </View>
-              <Text style={styles.activityText}>Explored Mauryan Empire locations</Text>
             </View>
           </View>
-        </Animatable.View>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -230,15 +239,15 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
     backgroundColor: themeColors.background,
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 30,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: 20,
+    paddingHorizontal: 24,
+    paddingTop: 64,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    marginBottom: 24,
   },
   headerContent: {
     flexDirection: 'row',
@@ -249,198 +258,231 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
     flex: 1,
   },
   headerIcon: {
-    marginLeft: 20,
+    opacity: 0.3,
+    transform: [{ rotate: '-15deg' }],
   },
   welcomeText: {
-    fontSize: 16,
-    color: Colors.white,
-    opacity: 0.9,
-    fontWeight: '500',
-  },
-  appTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.white,
-    marginVertical: 5,
-  },
-  subtitle: {
     fontSize: 14,
     color: Colors.white,
     opacity: 0.8,
-    lineHeight: 20,
+  },
+  appTitle: {
+    fontSize: 34,
+    fontWeight: '900',
+    color: Colors.white,
+    marginTop: 4,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: Colors.white,
+    opacity: 0.9,
+    marginTop: 8,
+    lineHeight: 22,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginBottom: 25,
+    paddingHorizontal: 18,
+    marginBottom: 28,
   },
   statsCard: {
     flex: 1,
     backgroundColor: themeColors.surface,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 16,
     marginHorizontal: 6,
     borderLeftWidth: 4,
-    elevation: 4,
-    shadowColor: themeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowRadius: 12,
   },
   statsContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginBottom: 10,
   },
   statsText: {
-    flex: 1,
+    marginTop: 4,
   },
   statsValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '800',
     color: themeColors.text,
   },
   statsTitle: {
     fontSize: 12,
     color: themeColors.textSecondary,
+    fontWeight: '600',
     marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  highlightCard: {
-    marginHorizontal: 20,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 25,
-    elevation: 4,
-    shadowColor: themeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  highlightGradient: {
+  aspirantCard: {
+    marginHorizontal: 24,
+    backgroundColor: themeColors.surface,
+    borderRadius: 24,
     padding: 20,
+    marginBottom: 28,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: isDark ? '#333' : '#f0f0f0',
   },
-  highlightHeader: {
+  aspirantHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  titleWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    gap: 8,
   },
-  highlightContent: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  highlightText: {
-    flex: 1,
-  },
-  highlightTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: themeColors.text,
-    marginBottom: 5,
+    letterSpacing: -0.5,
   },
-  highlightDate: {
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  seeAllText: {
     fontSize: 12,
+    fontWeight: '700',
     color: Colors.primary,
-    fontWeight: '600',
-    marginBottom: 8,
   },
-  highlightDescription: {
+  conceptBody: {
+    gap: 10,
+  },
+  conceptTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: themeColors.text,
+  },
+  conceptDescription: {
     fontSize: 14,
     color: themeColors.textSecondary,
     lineHeight: 22,
   },
-  featuresSection: {
-    marginBottom: 25,
+  tagRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: themeColors.text,
-    marginHorizontal: 20,
-    marginBottom: 15,
-    marginLeft: 10,
+  tag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  section: {
+    marginBottom: 28,
   },
   featuresGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 15,
+    paddingHorizontal: 18,
+    marginTop: 12,
   },
   featureCardContainer: {
-    width: (width - 50) / 2,
-    margin: 5,
+    width: (width - 60) / 2,
+    margin: 6,
   },
   featureCard: {
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 20,
-    height: 140,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 6,
+    height: 156,
+    justifyContent: 'space-between',
+    elevation: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
   },
   featureIconContainer: {
-    marginBottom: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   featureTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '800',
     color: Colors.white,
-    textAlign: 'center',
-    marginBottom: 4,
+    marginTop: 12,
   },
   featureDescription: {
     fontSize: 11,
     color: Colors.white,
-    opacity: 0.9,
-    textAlign: 'center',
-    lineHeight: 16,
+    opacity: 0.85,
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  featureAction: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
   },
   activityCard: {
+    marginHorizontal: 24,
     backgroundColor: themeColors.surface,
-    marginHorizontal: 20,
-    borderRadius: 20,
-    padding: 20,
-    elevation: 4,
-    shadowColor: themeColors.shadow,
-    shadowOffset: { width: 0, height: 2 },
+    borderRadius: 24,
+    padding: 24,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  activityHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
+    shadowRadius: 12,
   },
   activityList: {
-    gap: 12,
+    marginTop: 16,
+    gap: 20,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 16,
   },
   activityIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
-  activityText: {
+  activityTextContainer: {
     flex: 1,
-    fontSize: 14,
+  },
+  activityLabel: {
+    fontSize: 12,
     color: themeColors.textSecondary,
-    lineHeight: 20,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  activityValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: themeColors.text,
+    marginTop: 2,
   },
 });
 

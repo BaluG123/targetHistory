@@ -36,6 +36,7 @@ interface QuizState {
   selectedRegion: 'world' | 'india';
   timeRemaining: number;
   totalTime: number;
+  quizMode: 'study' | 'classic';
 }
 
 const initialState: QuizState = {
@@ -51,6 +52,7 @@ const initialState: QuizState = {
   selectedRegion: 'india',
   timeRemaining: 0,
   totalTime: 0,
+  quizMode: 'classic',
 };
 
 const quizSlice = createSlice({
@@ -60,7 +62,11 @@ const quizSlice = createSlice({
     setQuestions: (state, action: PayloadAction<QuizQuestion[]>) => {
       state.questions = action.payload;
     },
-    startQuiz: (state, action: PayloadAction<{ questions: QuizQuestion[]; timeLimit: number }>) => {
+    startQuiz: (state, action: PayloadAction<{
+      questions: QuizQuestion[];
+      timeLimit: number;
+      mode: 'study' | 'classic';
+    }>) => {
       state.currentQuiz = action.payload.questions;
       state.currentQuestionIndex = 0;
       state.userAnswers = [];
@@ -68,6 +74,7 @@ const quizSlice = createSlice({
       state.isQuizActive = true;
       state.timeRemaining = action.payload.timeLimit;
       state.totalTime = action.payload.timeLimit;
+      state.quizMode = action.payload.mode;
     },
     answerQuestion: (state, action: PayloadAction<number>) => {
       state.userAnswers[state.currentQuestionIndex] = action.payload;
@@ -92,7 +99,7 @@ const quizSlice = createSlice({
         id: Date.now().toString(),
         score: state.score,
         totalQuestions: state.currentQuiz.length,
-        correctAnswers: state.userAnswers.filter((answer, index) => 
+        correctAnswers: state.userAnswers.filter((answer, index) =>
           answer === state.currentQuiz[index].correctAnswer
         ).length,
         timeSpent: state.totalTime - state.timeRemaining,
@@ -100,16 +107,20 @@ const quizSlice = createSlice({
         region: state.selectedRegion,
         date: new Date().toISOString(),
       };
-      state.quizResults.push(result);
+      if (state.quizMode === 'classic') {
+        state.quizResults.push(result);
+      }
     },
     setQuizSettings: (state, action: PayloadAction<{
-      difficulty: 'easy' | 'medium' | 'hard';
-      category: 'ancient' | 'medieval' | 'modern';
-      region: 'world' | 'india';
+      difficulty?: 'easy' | 'medium' | 'hard';
+      category?: 'ancient' | 'medieval' | 'modern';
+      region?: 'world' | 'india';
+      mode?: 'study' | 'classic';
     }>) => {
-      state.selectedDifficulty = action.payload.difficulty;
-      state.selectedCategory = action.payload.category;
-      state.selectedRegion = action.payload.region;
+      if (action.payload.difficulty) state.selectedDifficulty = action.payload.difficulty;
+      if (action.payload.category) state.selectedCategory = action.payload.category;
+      if (action.payload.region) state.selectedRegion = action.payload.region;
+      if (action.payload.mode) state.quizMode = action.payload.mode;
     },
     updateTimer: (state, action: PayloadAction<number>) => {
       state.timeRemaining = action.payload;

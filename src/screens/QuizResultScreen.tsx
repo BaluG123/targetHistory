@@ -14,8 +14,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
-const { width } = Dimensions.get('window');
-
 const QuizResultScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const { quiz, user } = useSelector((state: RootState) => state);
@@ -25,19 +23,13 @@ const QuizResultScreen = ({ navigation }: any) => {
 
   const latestResult = quiz.quizResults[quiz.quizResults.length - 1];
   
-  if (!latestResult) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No quiz results found</Text>
-      </View>
-    );
-  }
-
-  const scorePercentage = Math.round((latestResult.correctAnswers / latestResult.totalQuestions) * 100);
-  const timeSpentMinutes = Math.floor(latestResult.timeSpent / 60);
-  const timeSpentSeconds = latestResult.timeSpent % 60;
+  const scorePercentage = latestResult ? Math.round((latestResult.correctAnswers / latestResult.totalQuestions) * 100) : 0;
+  const timeSpentMinutes = latestResult ? Math.floor(latestResult.timeSpent / 60) : 0;
+  const timeSpentSeconds = latestResult ? latestResult.timeSpent % 60 : 0;
 
   useEffect(() => {
+    if (!latestResult) return;
+    
     // Update user stats
     const newStats = {
       totalQuizzesTaken: user.stats.totalQuizzesTaken + 1,
@@ -65,7 +57,15 @@ const QuizResultScreen = ({ navigation }: any) => {
     if (user.stats.totalQuizzesTaken + 1 === 10) {
       dispatch(addAchievement('Quiz Master'));
     }
-  }, []);
+  }, [dispatch, latestResult, scorePercentage, user.stats.averageScore, user.stats.bestScore, user.stats.totalQuizzesTaken, user.stats.totalTimeSpent]);
+  
+  if (!latestResult) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>No quiz results found</Text>
+      </View>
+    );
+  }
 
   const getScoreColor = () => {
     if (scorePercentage >= 80) return '#4CAF50';
