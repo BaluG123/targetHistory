@@ -2367,5 +2367,223 @@ export const quizQuestions: QuizQuestion[] = [
   { id: 'q282', question: 'The "Industrial Revolution" first began in which country?', options: ['Germany', 'France', 'United States', 'Great Britain'], correctAnswer: 3, explanation: 'The Industrial Revolution started in Great Britain in the late 18th century, transforming production and society.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
   { id: 'q283', question: 'Who led the "Santhal Rebellion" (1855–56) against British authorities and zamindars?', options: ['Birsa Munda', 'Sidhu and Kanhu Murmu', 'Tantia Bhil', 'Alluri Sitarama Raju'], correctAnswer: 1, explanation: 'Sidhu and Kanhu Murmu led the Santhal uprising in present-day Jharkhand and Bihar.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
   { id: 'q284', question: 'The "United Nations" officially came into existence on which date?', options: ['24 October 1945', '1 January 1945', '14 August 1945', '9 May 1945'], correctAnswer: 0, explanation: 'The UN was formally established on 24 October 1945, now observed as UN Day.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
-  { id: 'q285', question: 'The "Chipko Movement" in India was primarily associated with the protection of?', options: ['Wild animals', 'Forests and trees', 'Rivers', 'Historical monuments'], correctAnswer: 1, explanation: 'The Chipko Movement involved villagers hugging trees to prevent their felling in the Himalayas.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 }
+  { id: 'q285', question: 'The "Chipko Movement" in India was primarily associated with the protection of?', options: ['Wild animals', 'Forests and trees', 'Rivers', 'Historical monuments'], correctAnswer: 1, explanation: 'The Chipko Movement involved villagers hugging trees to prevent their felling in the Himalayas.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+    // Ancient India - Easy
+  { id: 'q286', question: 'Which river valley was home to one of the world\'s earliest urban civilizations in India?', options: ['Ganges', 'Indus', 'Brahmaputra', 'Godavari'], correctAnswer: 1, explanation: 'The Indus Valley Civilization (3300-1300 BCE) was one of the world\'s earliest urban civilizations with advanced city planning.', difficulty: 'easy', category: 'ancient', region: 'india', points: 10 },
+  
+  { id: 'q287', question: 'Who was the founder of the Mauryan Empire?', options: ['Ashoka', 'Chandragupta Maurya', 'Bindusara', 'Samudragupta'], correctAnswer: 1, explanation: 'Chandragupta Maurya founded the Mauryan Empire in 321 BCE, creating the first pan-Indian empire.', difficulty: 'easy', category: 'ancient', region: 'india', points: 10 },
+  
+  { id: 'q288', question: 'Which Mauryan emperor embraced Buddhism after the Kalinga War?', options: ['Chandragupta', 'Bindusara', 'Ashoka', 'Brihadratha'], correctAnswer: 2, explanation: 'Emperor Ashoka converted to Buddhism after witnessing the bloodshed of the Kalinga War in 261 BCE.', difficulty: 'easy', category: 'ancient', region: 'india', points: 10 },
+  
+  { id: 'q289', question: 'The Vedas are sacred texts of which religion?', options: ['Buddhism', 'Jainism', 'Hinduism', 'Sikhism'], correctAnswer: 2, explanation: 'The Vedas are the oldest sacred texts of Hinduism, composed during the Vedic period (1500-600 BCE).', difficulty: 'easy', category: 'ancient', region: 'india', points: 10 },
+  
+  { id: 'q290', question: 'Which period is called the "Golden Age of India"?', options: ['Mauryan', 'Gupta', 'Mughal', 'Vedic'], correctAnswer: 1, explanation: 'The Gupta period (320-550 CE) is called the Golden Age for its achievements in science, arts, literature, and mathematics.', difficulty: 'easy', category: 'ancient', region: 'india', points: 10 },
+
+  // Ancient India - Medium
+  { id: 'q291', question: 'Who wrote the ancient Indian treatise on statecraft, the "Arthashastra"?', options: ['Valmiki', 'Kautilya (Chanakya)', 'Patanjali', 'Panini'], correctAnswer: 1, explanation: 'Chanakya, also known as Kautilya, wrote the Arthashastra, a comprehensive treatise on politics, economics, and military strategy.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q292', question: 'The famous iron pillar that has not rusted for centuries is located in which city?', options: ['Patna', 'Delhi', 'Varanasi', 'Agra'], correctAnswer: 1, explanation: 'The Iron Pillar of Delhi, dating from the Gupta period, stands in the Qutub complex and has resisted rust for over 1600 years.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q293', question: 'Which mathematician calculated the value of pi and proposed heliocentric concepts?', options: ['Brahmagupta', 'Aryabhata', 'Varahamihira', 'Bhaskara'], correctAnswer: 1, explanation: 'Aryabhata (476-550 CE) calculated pi to four decimal places and suggested the Earth rotates on its axis.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q294', question: 'The Satavahana dynasty was primarily located in which region?', options: ['Punjab', 'Bengal', 'Deccan', 'Kashmir'], correctAnswer: 2, explanation: 'The Satavahana dynasty (230 BCE - 220 CE) ruled the Deccan region and promoted trade with the Roman Empire.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q295', question: 'Which ruler is known for constructing the Kailasa temple at Ellora?', options: ['Krishna I', 'Harsha', 'Pulakeshin II', 'Rajaraja Chola'], correctAnswer: 0, explanation: 'Krishna I of the Rashtrakuta dynasty built the monolithic Kailasa temple at Ellora around 760 CE.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+
+  // Ancient India - Hard
+  { id: 'q296', question: 'The Third Buddhist Council was convened during the reign of which emperor?', options: ['Chandragupta Maurya', 'Ashoka', 'Kanishka', 'Harsha'], correctAnswer: 1, explanation: 'Emperor Ashoka convened the Third Buddhist Council at Pataliputra around 250 BCE to settle doctrinal disputes.', difficulty: 'hard', category: 'ancient', region: 'india', points: 30 },
+  
+  { id: 'q297', question: 'Who wrote the Sanskrit drama "Abhijnanasakuntalam"?', options: ['Kalidasa', 'Bhasa', 'Shudraka', 'Bhavabhuti'], correctAnswer: 0, explanation: 'Kalidasa wrote this masterpiece during the Gupta period, considered one of the greatest works in Sanskrit literature.', difficulty: 'hard', category: 'ancient', region: 'india', points: 30 },
+  
+  { id: 'q298', question: 'Which Chola king conquered parts of Southeast Asia and assumed the title "Gangaikonda"?', options: ['Rajaraja I', 'Rajendra I', 'Rajadhiraja I', 'Kulottunga I'], correctAnswer: 1, explanation: 'Rajendra Chola I (1014-1044 CE) conquered territories up to the Ganges and Southeast Asia, earning the title "Gangaikonda Chola".', difficulty: 'hard', category: 'ancient', region: 'india', points: 30 },
+  
+  { id: 'q299', question: 'The Nalanda University was destroyed by which invader?', options: ['Muhammad Ghori', 'Bakhtiyar Khilji', 'Mahmud of Ghazni', 'Timur'], correctAnswer: 1, explanation: 'Bakhtiyar Khilji destroyed Nalanda University in 1193 CE, ending centuries of Buddhist learning.', difficulty: 'hard', category: 'ancient', region: 'india', points: 30 },
+  
+  { id: 'q300', question: 'Which philosophical school was established by Adi Shankaracharya?', options: ['Dvaita', 'Vishishtadvaita', 'Advaita Vedanta', 'Samkhya'], correctAnswer: 2, explanation: 'Adi Shankaracharya (8th century CE) established Advaita Vedanta philosophy, emphasizing non-dualism and oneness with Brahman.', difficulty: 'hard', category: 'ancient', region: 'india', points: 30 },
+
+  // Medieval India - Easy
+  { id: 'q301', question: 'Who founded the Delhi Sultanate?', options: ['Alauddin Khilji', 'Qutb-ud-din Aibak', 'Iltutmish', 'Balban'], correctAnswer: 1, explanation: 'Qutb-ud-din Aibak established the Delhi Sultanate in 1206 CE, beginning Muslim rule in North India.', difficulty: 'easy', category: 'medieval', region: 'india', points: 10 },
+  
+  { id: 'q302', question: 'Which Mughal emperor built the Taj Mahal?', options: ['Akbar', 'Jahangir', 'Shah Jahan', 'Aurangzeb'], correctAnswer: 2, explanation: 'Shah Jahan built the Taj Mahal (1632-1653) in Agra as a mausoleum for his wife Mumtaz Mahal.', difficulty: 'easy', category: 'medieval', region: 'india', points: 10 },
+  
+  { id: 'q303', question: 'Babur defeated which sultan at the First Battle of Panipat?', options: ['Ibrahim Lodi', 'Sikandar Lodi', 'Bahlol Lodi', 'Daulat Khan Lodi'], correctAnswer: 0, explanation: 'Babur defeated Ibrahim Lodi at the First Battle of Panipat in 1526, establishing the Mughal Empire.', difficulty: 'easy', category: 'medieval', region: 'india', points: 10 },
+  
+  { id: 'q304', question: 'Which movement emphasized personal devotion to God and challenged caste system?', options: ['Arya Samaj', 'Bhakti Movement', 'Brahmo Samaj', 'Prarthana Samaj'], correctAnswer: 1, explanation: 'The Bhakti Movement (12th-17th centuries) promoted devotional worship and challenged social hierarchies through saints like Kabir and Mirabai.', difficulty: 'easy', category: 'medieval', region: 'india', points: 10 },
+  
+  { id: 'q305', question: 'Who was the founder of Sikhism?', options: ['Guru Gobind Singh', 'Guru Nanak', 'Guru Arjan Dev', 'Guru Tegh Bahadur'], correctAnswer: 1, explanation: 'Guru Nanak (1469-1539) founded Sikhism, emphasizing monotheism, equality, and service to humanity.', difficulty: 'easy', category: 'medieval', region: 'india', points: 10 },
+
+  // Medieval India - Medium
+  { id: 'q306', question: 'Which Delhi Sultan introduced market reforms and price control?', options: ['Iltutmish', 'Balban', 'Alauddin Khilji', 'Muhammad bin Tughlaq'], correctAnswer: 2, explanation: 'Alauddin Khilji (1296-1316) introduced strict market regulations and price controls to support his large army.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+  
+  { id: 'q307', question: 'The Vijayanagara Empire reached its zenith under which ruler?', options: ['Harihara I', 'Bukka Raya I', 'Krishnadevaraya', 'Devaraya II'], correctAnswer: 2, explanation: 'Krishnadevaraya (1509-1529) was the greatest ruler of Vijayanagara, known for military success and literary patronage.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+  
+  { id: 'q308', question: 'Akbar\'s policy of religious tolerance was called?', options: ['Din-i-Ilahi', 'Sulh-i-Kul', 'Mansabdari', 'Zabti'], correctAnswer: 1, explanation: 'Sulh-i-Kul (universal peace) was Akbar\'s policy promoting harmony among all religions and communities.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+  
+  { id: 'q309', question: 'Who built the Grand Trunk Road connecting Bengal to the Northwest?', options: ['Akbar', 'Sher Shah Suri', 'Jahangir', 'Aurangzeb'], correctAnswer: 1, explanation: 'Sher Shah Suri (1540-1545) built the Grand Trunk Road and introduced administrative reforms including the rupee currency.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+  
+  { id: 'q310', question: 'The Battle of Talikota in 1565 led to the decline of which empire?', options: ['Mughal', 'Delhi Sultanate', 'Vijayanagara', 'Maratha'], correctAnswer: 2, explanation: 'The Battle of Talikota saw the defeat of Vijayanagara by a coalition of Deccan Sultanates, leading to its decline.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+
+  // Medieval India - Hard
+  { id: 'q311', question: 'Which Sufi saint\'s dargah is located in Ajmer?', options: ['Nizamuddin Auliya', 'Moinuddin Chishti', 'Baba Farid', 'Shah Alam Bukhari'], correctAnswer: 1, explanation: 'Moinuddin Chishti (1141-1236) established the Chishti order in India; his dargah in Ajmer is a major pilgrimage site.', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+  
+  { id: 'q312', question: 'Maharana Pratap fought which Mughal general at the Battle of Haldighati?', options: ['Akbar', 'Man Singh', 'Todar Mal', 'Abdul Rahim Khan-i-Khana'], correctAnswer: 1, explanation: 'Maharana Pratap fought Man Singh (Akbar\'s general) at Haldighati in 1576, symbolizing Rajput resistance.', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+  
+  { id: 'q313', question: 'The Moroccan traveler who visited Muhammad bin Tughlaq\'s court was?', options: ['Marco Polo', 'Ibn Battuta', 'Niccolò de\' Conti', 'Abdur Razzaq'], correctAnswer: 1, explanation: 'Ibn Battuta visited Delhi in 1333 and served in Tughlaq\'s court, documenting medieval Indian society in his Rihla.', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+  
+  { id: 'q314', question: 'Which Maratha Peshwa ruled during the Third Battle of Panipat?', options: ['Baji Rao I', 'Balaji Baji Rao', 'Madhav Rao I', 'Baji Rao II'], correctAnswer: 1, explanation: 'Balaji Baji Rao was Peshwa when Marathas were defeated by Ahmad Shah Abdali at the Third Battle of Panipat (1761).', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+  
+  { id: 'q315', question: 'Akbar abolished the jizya tax in which year?', options: ['1556', '1564', '1571', '1580'], correctAnswer: 1, explanation: 'Akbar abolished jizya (tax on non-Muslims) in 1564 as part of his policy of religious tolerance.', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+
+  // Modern India - Easy
+  { id: 'q316', question: 'The Battle of Plassey was fought in which year?', options: ['1757', '1764', '1799', '1857'], correctAnswer: 0, explanation: 'The Battle of Plassey (1757) established British dominance in Bengal after defeating Siraj-ud-Daulah.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+  
+  { id: 'q317', question: 'India gained independence in which year?', options: ['1945', '1946', '1947', '1950'], correctAnswer: 2, explanation: 'India gained independence from British rule on August 15, 1947, ending nearly 200 years of colonial domination.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+  
+  { id: 'q318', question: 'Who is known as the "Father of the Nation" in India?', options: ['Jawaharlal Nehru', 'Mahatma Gandhi', 'Subhas Chandra Bose', 'Sardar Patel'], correctAnswer: 1, explanation: 'Mahatma Gandhi is honored as the Father of the Nation for leading India\'s non-violent independence struggle.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+  
+  { id: 'q319', question: 'The Revolt of 1857 began in which city?', options: ['Delhi', 'Lucknow', 'Meerut', 'Kanpur'], correctAnswer: 2, explanation: 'The Revolt of 1857 began in Meerut on May 10, 1857, sparked by sepoy mutiny and quickly spread across North India.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+  
+  { id: 'q320', question: 'The Indian National Congress was founded in which year?', options: ['1857', '1885', '1905', '1920'], correctAnswer: 1, explanation: 'The Indian National Congress was founded in 1885 in Bombay, becoming the main platform for independence struggle.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+
+  // Modern India - Medium
+  { id: 'q321', question: 'The Dandi March was undertaken to protest against?', options: ['Land revenue', 'Salt tax', 'Income tax', 'Forest laws'], correctAnswer: 1, explanation: 'Gandhi led the Dandi March in 1930 to protest the British salt monopoly and tax, launching Civil Disobedience Movement.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+  
+  { id: 'q322', question: 'Who integrated over 500 princely states into the Indian Union?', options: ['Jawaharlal Nehru', 'Sardar Vallabhbhai Patel', 'Rajendra Prasad', 'Maulana Azad'], correctAnswer: 1, explanation: 'Sardar Patel, as Home Minister, skillfully integrated princely states into India between 1947-1950.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+  
+  { id: 'q323', question: 'The Jallianwala Bagh massacre occurred in which city?', options: ['Lahore', 'Amritsar', 'Delhi', 'Lucknow'], correctAnswer: 1, explanation: 'General Dyer ordered firing on a peaceful gathering at Jallianwala Bagh in Amritsar on April 13, 1919, killing hundreds.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+  
+  { id: 'q324', question: 'Which act transferred power from East India Company to the British Crown?', options: ['Regulating Act 1773', 'Charter Act 1813', 'Government of India Act 1858', 'Government of India Act 1935'], correctAnswer: 2, explanation: 'The Government of India Act 1858 transferred control from the Company to the Crown after the 1857 revolt.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+  
+  { id: 'q325', question: 'The Quit India Movement was launched in which year?', options: ['1930', '1942', '1945', '1946'], correctAnswer: 1, explanation: 'Gandhi launched the Quit India Movement in August 1942, demanding immediate British withdrawal from India.', difficulty: 'medium', category: 'modern', region: 'india', points: 20 },
+
+  // Modern India - Hard
+  { id: 'q326', question: 'Which treaty gave the East India Company Diwani rights over Bengal, Bihar, and Orissa?', options: ['Treaty of Plassey', 'Treaty of Allahabad', 'Treaty of Buxar', 'Treaty of Srirangapatna'], correctAnswer: 1, explanation: 'The Treaty of Allahabad (1765) granted the Company revenue collection rights, making them de facto rulers.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
+  
+  { id: 'q327', question: 'Lord Bentinck abolished the practice of Sati in which year?', options: ['1813', '1829', '1835', '1856'], correctAnswer: 1, explanation: 'Lord William Bentinck abolished Sati in 1829, influenced by social reformer Raja Ram Mohan Roy.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
+  
+  { id: 'q328', question: 'The Subsidiary Alliance system was introduced by which Governor-General?', options: ['Warren Hastings', 'Lord Cornwallis', 'Lord Wellesley', 'Lord Dalhousie'], correctAnswer: 2, explanation: 'Lord Wellesley introduced the Subsidiary Alliance (1798-1805) to expand British control over Indian states.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
+  
+  { id: 'q329', question: 'Which commission\'s arrival in 1928 was met with "Simon Go Back" protests?', options: ['Hunter Commission', 'Simon Commission', 'Cripps Mission', 'Cabinet Mission'], correctAnswer: 1, explanation: 'The all-white Simon Commission (1928) was boycotted by Indians as it had no Indian members to recommend constitutional reforms.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
+  
+  { id: 'q330', question: 'The Doctrine of Lapse was enforced by which British administrator?', options: ['Lord Wellesley', 'Lord Bentinck', 'Lord Dalhousie', 'Lord Curzon'], correctAnswer: 2, explanation: 'Lord Dalhousie\'s Doctrine of Lapse (1848-1856) annexed states without natural heirs, including Jhansi and Satara.', difficulty: 'hard', category: 'modern', region: 'india', points: 30 },
+
+  // Ancient World - Easy
+  { id: 'q331', question: 'Which ancient civilization is known for building pyramids?', options: ['Mesopotamian', 'Egyptian', 'Greek', 'Roman'], correctAnswer: 1, explanation: 'Ancient Egypt built pyramids as tombs for pharaohs, with the Great Pyramid of Giza being the most famous.', difficulty: 'easy', category: 'ancient', region: 'world', points: 10 },
+  
+  { id: 'q332', question: 'Who was the first Roman Emperor?', options: ['Julius Caesar', 'Augustus', 'Nero', 'Constantine'], correctAnswer: 1, explanation: 'Augustus (formerly Octavian) became the first Roman Emperor in 27 BCE, transforming the Republic into an Empire.', difficulty: 'easy', category: 'ancient', region: 'world', points: 10 },
+  
+  { id: 'q333', question: 'The ancient Olympic Games originated in which country?', options: ['Rome', 'Egypt', 'Greece', 'Persia'], correctAnswer: 2, explanation: 'The ancient Olympic Games began in Olympia, Greece around 776 BCE as athletic competitions honoring Zeus.', difficulty: 'easy', category: 'ancient', region: 'world', points: 10 },
+  
+  { id: 'q334', question: 'Which Chinese dynasty built most of the Great Wall?', options: ['Han', 'Qin', 'Ming', 'Tang'], correctAnswer: 2, explanation: 'While Qin began it, the Ming dynasty (1368-1644) built most of the current Great Wall structure.', difficulty: 'easy', category: 'ancient', region: 'world', points: 10 },
+  
+  { id: 'q335', question: 'The ancient city of Babylon was located in modern-day which country?', options: ['Iran', 'Iraq', 'Syria', 'Turkey'], correctAnswer: 1, explanation: 'Babylon was located in Mesopotamia, in what is now Iraq, and was capital of the Babylonian Empire.', difficulty: 'easy', category: 'ancient', region: 'world', points: 10 },
+
+  // Ancient World - Medium
+  { id: 'q336', question: 'Which Persian king created one of the first world empires?', options: ['Darius I', 'Cyrus the Great', 'Xerxes I', 'Artaxerxes I'], correctAnswer: 1, explanation: 'Cyrus the Great founded the Achaemenid Persian Empire around 550 BCE, known for religious tolerance and efficient administration.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+  
+  { id: 'q337', question: 'The Code of Hammurabi was created in which ancient civilization?', options: ['Egyptian', 'Babylonian', 'Greek', 'Roman'], correctAnswer: 1, explanation: 'King Hammurabi of Babylon created one of the earliest law codes around 1754 BCE with "eye for an eye" principle.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+  
+  { id: 'q338', question: 'Who was the famous Chinese philosopher who emphasized moral values and filial piety?', options: ['Lao Tzu', 'Confucius', 'Sun Tzu', 'Mencius'], correctAnswer: 1, explanation: 'Confucius (551-479 BCE) developed ethical philosophy emphasizing morality, family loyalty, and proper governance.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+  
+  { id: 'q339', question: 'The Rosetta Stone helped decipher which ancient writing system?', options: ['Cuneiform', 'Hieroglyphics', 'Linear B', 'Sanskrit'], correctAnswer: 1, explanation: 'The Rosetta Stone (196 BCE) contained text in Greek and Egyptian hieroglyphics, enabling their decipherment.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+  
+  { id: 'q340', question: 'Which battle in 490 BCE saw Athens defeat the Persian invasion?', options: ['Thermopylae', 'Marathon', 'Salamis', 'Plataea'], correctAnswer: 1, explanation: 'The Battle of Marathon (490 BCE) saw Athenian hoplites defeat a larger Persian force, preserving Greek independence.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+
+  // Ancient World - Hard
+  { id: 'q341', question: 'Which Chinese emperor unified China and standardized writing, currency, and measurements?', options: ['Han Wudi', 'Qin Shi Huang', 'Tang Taizong', 'Emperor Gaozu'], correctAnswer: 1, explanation: 'Qin Shi Huang unified China in 221 BCE and standardized various systems, though his dynasty lasted only 15 years.', difficulty: 'hard', category: 'ancient', region: 'world', points: 30 },
+  
+  { id: 'q342', question: 'The Phoenicians are credited with developing which innovation?', options: ['Paper', 'Alphabet', 'Wheel', 'Iron smelting'], correctAnswer: 1, explanation: 'The Phoenicians developed the first widely-used alphabet around 1050 BCE, which influenced Greek and Latin alphabets.', difficulty: 'hard', category: 'ancient', region: 'world', points: 30 },
+  
+  { id: 'q343', question: 'Which Roman emperor legalized Christianity in the Empire?', options: ['Augustus', 'Nero', 'Constantine', 'Diocletian'], correctAnswer: 2, explanation: 'Emperor Constantine issued the Edict of Milan in 313 CE, legalizing Christianity and ending persecution.', difficulty: 'hard', category: 'ancient', region: 'world', points: 30 },
+  
+  { id: 'q344', question: 'The Library of Alexandria was located in which modern country?', options: ['Greece', 'Turkey', 'Egypt', 'Lebanon'], correctAnswer: 2, explanation: 'The Library of Alexandria in Egypt was the ancient world\'s largest library, housing hundreds of thousands of scrolls.', difficulty: 'hard', category: 'ancient', region: 'world', points: 30 },
+  
+  { id: 'q345', question: 'Which Greek philosopher was the teacher of Alexander the Great?', options: ['Socrates', 'Plato', 'Aristotle', 'Pythagoras'], correctAnswer: 2, explanation: 'Aristotle tutored young Alexander the Great in Macedonia, influencing his intellectual development.', difficulty: 'hard', category: 'ancient', region: 'world', points: 30 },
+
+  // Medieval World - Easy
+  { id: 'q346', question: 'The Byzantine Empire\'s capital Constantinople is now known as?', options: ['Athens', 'Rome', 'Istanbul', 'Cairo'], correctAnswer: 2, explanation: 'Constantinople, capital of the Byzantine Empire, fell to the Ottomans in 1453 and is now Istanbul, Turkey.', difficulty: 'easy', category: 'medieval', region: 'world', points: 10 },
+  
+  { id: 'q347', question: 'Which religion was founded by Prophet Muhammad?', options: ['Christianity', 'Islam', 'Judaism', 'Zoroastrianism'], correctAnswer: 1, explanation: 'Prophet Muhammad founded Islam in the 7th century CE in Mecca, which spread rapidly across Asia and Africa.', difficulty: 'easy', category: 'medieval', region: 'world', points: 10 },
+  
+  { id: 'q348', question: 'The Crusades were primarily fought between Christians and?', options: ['Vikings', 'Muslims', 'Mongols', 'Hindus'], correctAnswer: 1, explanation: 'The Crusades (1095-1291) were a series of religious wars between European Christians and Muslims over control of the Holy Land.', difficulty: 'easy', category: 'medieval', region: 'world', points: 10 },
+  
+  { id: 'q349', question: 'Who led the Mongol Empire to become the largest contiguous land empire?', options: ['Kublai Khan', 'Genghis Khan', 'Timur', 'Attila'], correctAnswer: 1, explanation: 'Genghis Khan united Mongol tribes in 1206 and built the largest contiguous empire in history through conquests.', difficulty: 'easy', category: 'medieval', region: 'world', points: 10 },
+  { id: 'q350', question: 'The Black Death plague ravaged which continent in the 14th century?', options: ['Asia', 'Africa', 'Europe', 'Americas'], correctAnswer: 2, explanation: 'The Black Death (1347-1351) killed an estimated 30-60% of Europe\'s population, causing massive social and economic changes.', difficulty: 'easy', category: 'medieval', region: 'world', points: 10 },
+
+  // Medieval World - Medium
+  { id: 'q351', question: 'Charlemagne was crowned Holy Roman Emperor in which year?', options: ['768', '800', '843', '962'], correctAnswer: 1, explanation: 'Charlemagne was crowned Holy Roman Emperor by Pope Leo III on Christmas Day, 800 CE, reviving the Western Empire concept.', difficulty: 'medium', category: 'medieval', region: 'world', points: 20 },
+  
+  { id: 'q352', question: 'The Hundred Years\' War was fought between which two countries?', options: ['Spain and Portugal', 'England and France', 'Germany and Italy', 'Russia and Poland'], correctAnswer: 1, explanation: 'The Hundred Years\' War (1337-1453) was fought between England and France over succession and territorial disputes.', difficulty: 'medium', category: 'medieval', region: 'world', points: 20 },
+  
+  { id: 'q353', question: 'Who invented the printing press in Europe around 1440?', options: ['Leonardo da Vinci', 'Johannes Gutenberg', 'Martin Luther', 'Erasmus'], correctAnswer: 1, explanation: 'Johannes Gutenberg developed movable type printing around 1440, revolutionizing the spread of knowledge in Europe.', difficulty: 'medium', category: 'medieval', region: 'world', points: 20 },
+  
+  { id: 'q354', question: 'The Magna Carta was signed in which year?', options: ['1066', '1215', '1337', '1453'], correctAnswer: 1, explanation: 'King John of England signed the Magna Carta in 1215, limiting royal power and establishing rule of law principles.', difficulty: 'medium', category: 'medieval', region: 'world', points: 20 },
+  
+  { id: 'q355', question: 'Which empire conquered Constantinople in 1453?', options: ['Mongol', 'Ottoman', 'Persian', 'Mughal'], correctAnswer: 1, explanation: 'The Ottoman Empire under Mehmed II conquered Constantinople in 1453, ending the Byzantine Empire.', difficulty: 'medium', category: 'medieval', region: 'world', points: 20 },
+
+  // Medieval World - Hard
+  { id: 'q356', question: 'The Battle of Hastings in 1066 resulted in the conquest of England by?', options: ['Vikings', 'Normans', 'Saxons', 'Danes'], correctAnswer: 1, explanation: 'William the Conqueror and his Norman forces defeated Harold II at Hastings, bringing Norman rule to England.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+  
+  { id: 'q357', question: 'Which Chinese dynasty was established by Kublai Khan?', options: ['Ming', 'Yuan', 'Song', 'Tang'], correctAnswer: 1, explanation: 'Kublai Khan, grandson of Genghis Khan, established the Yuan dynasty (1271-1368), ruling China as Mongols.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+  
+  { id: 'q358', question: 'The Renaissance began in which Italian city-state?', options: ['Venice', 'Milan', 'Florence', 'Rome'], correctAnswer: 2, explanation: 'The Renaissance began in Florence in the 14th century, patronized by the Medici family and producing great artists and thinkers.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+  
+  { id: 'q359', question: 'Joan of Arc fought for which country during the Hundred Years\' War?', options: ['England', 'France', 'Spain', 'Burgundy'], correctAnswer: 1, explanation: 'Joan of Arc led French forces against England in the 1420s-1430s before being captured and executed.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+  
+  { id: 'q360', question: 'The Reconquista in Spain was completed with the fall of which city?', options: ['Toledo', 'Cordoba', 'Granada', 'Seville'], correctAnswer: 2, explanation: 'The Reconquista ended in 1492 with the fall of Granada, the last Muslim kingdom in Spain, to Ferdinand and Isabella.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+
+  // Modern World - Easy
+  { id: 'q361', question: 'The French Revolution began in which year?', options: ['1776', '1789', '1804', '1815'], correctAnswer: 1, explanation: 'The French Revolution began in 1789 with the storming of the Bastille, leading to the overthrow of the monarchy.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+  
+  { id: 'q362', question: 'World War I began in which year?', options: ['1910', '1914', '1918', '1939'], correctAnswer: 1, explanation: 'World War I began in 1914 following the assassination of Archduke Franz Ferdinand and ended in 1918.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+  
+  { id: 'q363', question: 'The United States declared independence in which year?', options: ['1765', '1776', '1783', '1789'], correctAnswer: 1, explanation: 'The Declaration of Independence was adopted on July 4, 1776, declaring independence from Great Britain.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+  
+  { id: 'q364', question: 'World War II ended in which year?', options: ['1943', '1944', '1945', '1946'], correctAnswer: 2, explanation: 'World War II ended in 1945 with Germany\'s surrender in May and Japan\'s surrender in August after atomic bombings.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+  
+  { id: 'q365', question: 'The Cold War was primarily between which two superpowers?', options: ['USA and China', 'USA and USSR', 'Britain and France', 'Germany and Japan'], correctAnswer: 1, explanation: 'The Cold War (1947-1991) was a geopolitical tension between the United States and the Soviet Union.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+
+  // Modern World - Medium
+  { id: 'q366', question: 'Napoleon Bonaparte was finally defeated at which battle?', options: ['Austerlitz', 'Waterloo', 'Leipzig', 'Trafalgar'], correctAnswer: 1, explanation: 'Napoleon was decisively defeated at the Battle of Waterloo in 1815 by British and Prussian forces, ending his rule.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+  
+  { id: 'q367', question: 'The Industrial Revolution began in which country?', options: ['France', 'Germany', 'Britain', 'United States'], correctAnswer: 2, explanation: 'The Industrial Revolution began in Britain in the late 18th century with mechanization of textile production and steam power.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+  
+  { id: 'q368', question: 'The Treaty of Versailles was signed after which war?', options: ['Napoleonic Wars', 'World War I', 'World War II', 'Franco-Prussian War'], correctAnswer: 1, explanation: 'The Treaty of Versailles (1919) officially ended World War I and imposed harsh terms on Germany.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+  
+  { id: 'q369', question: 'The Russian Revolution of 1917 led to the establishment of which type of government?', options: ['Democracy', 'Monarchy', 'Communist', 'Fascist'], correctAnswer: 2, explanation: 'The Bolshevik Revolution in 1917 led by Lenin established the world\'s first communist government in Russia.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+  
+  { id: 'q370', question: 'Christopher Columbus reached the Americas in which year?', options: ['1453', '1492', '1498', '1519'], correctAnswer: 1, explanation: 'Columbus reached the Caribbean islands in 1492 while seeking a western route to Asia, initiating European colonization.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+
+  // Modern World - Hard
+  { id: 'q371', question: 'The Meiji Restoration in Japan occurred in which year?', options: ['1853', '1868', '1889', '1912'], correctAnswer: 1, explanation: 'The Meiji Restoration in 1868 restored imperial rule in Japan and began rapid modernization and industrialization.', difficulty: 'hard', category: 'modern', region: 'world', points: 30 },
+  
+  { id: 'q372', question: 'Martin Luther published his Ninety-Five Theses in which year, sparking the Protestant Reformation?', options: ['1492', '1517', '1534', '1555'], correctAnswer: 1, explanation: 'Martin Luther posted his Ninety-Five Theses in 1517 in Wittenberg, challenging Catholic Church practices.', difficulty: 'hard', category: 'modern', region: 'world', points: 30 },
+  
+  { id: 'q373', question: 'The Treaty of Westphalia (1648) ended which major European conflict?', options: ['Hundred Years\' War', 'Thirty Years\' War', 'Seven Years\' War', 'Wars of the Roses'], correctAnswer: 1, explanation: 'The Treaty of Westphalia ended the Thirty Years\' War and established the modern nation-state system.', difficulty: 'hard', category: 'modern', region: 'world', points: 30 },
+  
+  { id: 'q374', question: 'Which revolution inspired the motto "Liberty, Equality, Fraternity"?', options: ['American Revolution', 'French Revolution', 'Russian Revolution', 'Haitian Revolution'], correctAnswer: 1, explanation: 'The French Revolution adopted "Liberté, Égalité, Fraternité" as its motto, expressing revolutionary ideals.', difficulty: 'hard', category: 'modern', region: 'world', points: 30 },
+  
+  { id: 'q375', question: 'The Berlin Wall fell in which year?', options: ['1985', '1987', '1989', '1991'], correctAnswer: 2, explanation: 'The Berlin Wall fell on November 9, 1989, symbolizing the end of the Cold War and leading to German reunification.', difficulty: 'hard', category: 'modern', region: 'world', points: 30 },
+
+  // Mixed difficulty and categories for variety
+  { id: 'q376', question: 'Which ancient wonder was located in Alexandria, Egypt?', options: ['Hanging Gardens', 'Colossus', 'Lighthouse (Pharos)', 'Temple of Artemis'], correctAnswer: 2, explanation: 'The Lighthouse of Alexandria (Pharos) was one of the Seven Wonders, guiding ships into the harbor.', difficulty: 'medium', category: 'ancient', region: 'world', points: 20 },
+  
+  { id: 'q377', question: 'The partition of India in 1947 created which new nation?', options: ['Bangladesh', 'Sri Lanka', 'Pakistan', 'Myanmar'], correctAnswer: 2, explanation: 'The partition created Pakistan as a separate Muslim-majority nation, leading to massive migration and violence.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 },
+  
+  { id: 'q378', question: 'Which Mughal emperor was known as "Zinda Pir" (living saint)?', options: ['Akbar', 'Jahangir', 'Shah Jahan', 'Aurangzeb'], correctAnswer: 3, explanation: 'Aurangzeb was called "Zinda Pir" for his austere lifestyle and orthodox Islamic practices.', difficulty: 'hard', category: 'medieval', region: 'india', points: 30 },
+  
+  { id: 'q379', question: 'The Indus Valley Civilization had well-planned cities with advanced what?', options: ['Writing system', 'Drainage system', 'Military system', 'Monetary system'], correctAnswer: 1, explanation: 'Harappan cities like Mohenjo-daro featured sophisticated drainage and sanitation systems ahead of their time.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q380', question: 'The League of Nations was established after which war?', options: ['Napoleonic Wars', 'World War I', 'World War II', 'Korean War'], correctAnswer: 1, explanation: 'The League of Nations was created in 1920 after WWI to maintain peace, but failed to prevent WWII.', difficulty: 'medium', category: 'modern', region: 'world', points: 20 },
+  
+  { id: 'q381', question: 'Which empire built Angkor Wat in Cambodia?', options: ['Chinese', 'Khmer', 'Thai', 'Vietnamese'], correctAnswer: 1, explanation: 'The Khmer Empire built Angkor Wat in the 12th century as a Hindu temple, later converted to Buddhist use.', difficulty: 'hard', category: 'medieval', region: 'world', points: 30 },
+  
+  { id: 'q382', question: 'The concept of zero in mathematics originated in which civilization?', options: ['Greek', 'Roman', 'Indian', 'Chinese'], correctAnswer: 2, explanation: 'Ancient Indian mathematicians developed the concept of zero and the decimal system around the 5th century CE.', difficulty: 'medium', category: 'ancient', region: 'india', points: 20 },
+  
+  { id: 'q383', question: 'Vasco da Gama reached India in which year?', options: ['1492', '1498', '1510', '1526'], correctAnswer: 1, explanation: 'Vasco da Gama reached Calicut, India in 1498, opening the sea route between Europe and Asia.', difficulty: 'medium', category: 'medieval', region: 'india', points: 20 },
+  
+  { id: 'q384', question: 'The United Nations was founded in which year?', options: ['1919', '1939', '1945', '1950'], correctAnswer: 2, explanation: 'The United Nations was founded in 1945 after World War II to promote international cooperation and peace.', difficulty: 'easy', category: 'modern', region: 'world', points: 10 },
+  
+  { id: 'q385', question: 'The Indian Constitution came into effect on which date?', options: ['August 15, 1947', 'January 26, 1950', 'November 26, 1949', 'December 26, 1950'], correctAnswer: 1, explanation: 'The Constitution of India came into effect on January 26, 1950, making India a sovereign democratic republic.', difficulty: 'easy', category: 'modern', region: 'india', points: 10 }
+
 ];
