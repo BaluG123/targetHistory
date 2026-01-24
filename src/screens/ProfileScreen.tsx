@@ -115,6 +115,25 @@ const ProfileScreen = () => {
               Alert.alert('Error', 'Failed to upload content. Check console/permissions.');
             }
           }
+        },
+        {
+          text: 'Upload Both Tests',
+          onPress: async () => {
+            try {
+              const test1Success = await uploadManager.performUpload('test1');
+              const test2Success = await uploadManager.performUpload('test2');
+              
+              if (test1Success && test2Success) {
+                Alert.alert('Success', 'Both Test1 and Test2 uploaded successfully!');
+              } else if (test1Success || test2Success) {
+                Alert.alert('Partial Success', `${test1Success ? 'Test1' : 'Test2'} uploaded successfully. ${test1Success ? 'Test2' : 'Test1'} failed.`);
+              } else {
+                Alert.alert('Error', 'Failed to upload both tests. Check console/permissions.');
+              }
+            } catch (error) {
+              Alert.alert('Error', 'Failed to upload tests. Check console/permissions.');
+            }
+          }
         }
       ]
     );
