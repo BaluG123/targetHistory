@@ -79,7 +79,7 @@ const ExploreScreen = ({ navigation }: any) => {
             style={styles.headerGradient}
           >
             <View style={styles.headerTop}>
-              <View>
+              <View style={styles.headerLeft}>
                 <Text style={styles.headerLabel}>Discover</Text>
                 <Text style={styles.headerTitle}>History Atlas</Text>
               </View>
@@ -257,6 +257,9 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 24,
+  },
+  headerLeft: {
+    flex: 1,
   },
   headerLabel: {
     fontSize: 14,

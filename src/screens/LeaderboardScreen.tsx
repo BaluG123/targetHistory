@@ -92,31 +92,30 @@ const LeaderboardScreen = ({ navigation }: any) => {
     const styles_rank = getRankStyles(rank);
 
     return (
-      <Animated.View entering={FadeInUp.delay(Math.min(rank * 30, 300)).duration(400)}>
-        <View style={[
-          styles.rankerCard, 
-          isDark && { backgroundColor: '#1E1E1E' },
-          isCurrentUser && { borderColor: Colors.primary, borderWidth: 2 }
-        ]}>
-          <View style={styles.rankNumber}>
-            <Text style={[styles.rankText, { color: styles_rank.color }]}>#{rank}</Text>
-          </View>
-          
-          <View style={[styles.rankIconContainer, { backgroundColor: styles_rank.bg }]}>
-            <Icon name={styles_rank.icon} size={24} color={styles_rank.color} />
-          </View>
-          
-          <View style={styles.rankerInfo}>
-            <Text style={[styles.rankerName, isDark && { color: '#fff' }]}>
-              {ranker.name} {isCurrentUser && '(You)'}
-            </Text>
-            <Text style={styles.rankerStats}>
-              {ranker.score || 0} Points • {ranker.totalQuizzes || 0} Tests • Avg: {ranker.averageScore || 0}
-            </Text>
-            <Text style={styles.lastActive}>
-              Last active: {ranker.lastActive ? ranker.lastActive.toLocaleDateString() : 'Unknown'}
-            </Text>
-          </View>
+      <View style={[
+        styles.rankerCard, 
+        isDark && { backgroundColor: '#1E1E1E' },
+        isCurrentUser && { borderColor: Colors.primary, borderWidth: 2 }
+      ]}>
+        <View style={styles.rankNumber}>
+          <Text style={[styles.rankText, { color: styles_rank.color }]}>#{rank}</Text>
+        </View>
+        
+        <View style={[styles.rankIconContainer, { backgroundColor: styles_rank.bg }]}>
+          <Icon name={styles_rank.icon} size={24} color={styles_rank.color} />
+        </View>
+        
+        <View style={styles.rankerInfo}>
+          <Text style={[styles.rankerName, isDark && { color: '#fff' }]}>
+            {ranker.name} {isCurrentUser && '(You)'}
+          </Text>
+          <Text style={styles.rankerStats}>
+            {ranker.score || 0} Points • {ranker.totalQuizzes || 0} Tests • Avg: {ranker.averageScore || 0}
+          </Text>
+          <Text style={styles.lastActive}>
+            Last active: {ranker.lastActive ? ranker.lastActive.toLocaleDateString() : 'Unknown'}
+          </Text>
+        </View>
 
           {rank <= 3 && (
             <View style={styles.crownContainer}>
@@ -124,7 +123,6 @@ const LeaderboardScreen = ({ navigation }: any) => {
             </View>
           )}
         </View>
-      </Animated.View>
     );
   };
 
@@ -155,39 +153,41 @@ const LeaderboardScreen = ({ navigation }: any) => {
           </Text>
         </View>
       ) : (
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
-            />
-          }
-        >
-          {rankers.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Icon name="leaderboard" size={64} color={themeColors.textSecondary} />
-              <Text style={[styles.emptyText, { color: themeColors.text }]}>
-                No rankers yet
-              </Text>
-              <Text style={[styles.emptySubtext, { color: themeColors.textSecondary }]}>
-                Be the first to complete a quiz and claim your spot!
-              </Text>
-            </View>
-          ) : (
-            rankers.map((ranker, index) => (
-              <RankerCard
-                key={ranker.id}
-                ranker={ranker}
-                rank={index + 1}
-                isCurrentUser={auth.user?.uid === ranker.id}
+        <Animated.View entering={FadeInUp.delay(200).duration(600)}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[Colors.primary]}
+                tintColor={Colors.primary}
               />
-            ))
-          )}
-        </ScrollView>
+            }
+          >
+            {rankers.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Icon name="leaderboard" size={64} color={themeColors.textSecondary} />
+                <Text style={[styles.emptyText, { color: themeColors.text }]}>
+                  No rankers yet
+                </Text>
+                <Text style={[styles.emptySubtext, { color: themeColors.textSecondary }]}>
+                  Be the first to complete a quiz and claim your spot!
+                </Text>
+              </View>
+            ) : (
+              rankers.map((ranker, index) => (
+                <RankerCard
+                  key={`${ranker.id}-${ranker.score}`}
+                  ranker={ranker}
+                  rank={index + 1}
+                  isCurrentUser={auth.user?.uid === ranker.id}
+                />
+              ))
+            )}
+          </ScrollView>
+        </Animated.View>
       )}
     </View>
   );

@@ -137,10 +137,18 @@ const EventsScreen = ({ navigation }: any) => {
         colors={isDark ? ['#2C3E50', '#34495E'] : ['#FF6B35', '#F7931E']}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>Historical Events</Text>
-        <Text style={styles.headerSubtitle}>
-          {filteredAndSortedEvents.length} events found
-        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Icon name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Historical Events</Text>
+          <Text style={styles.headerSubtitle}>
+            {filteredAndSortedEvents.length} events found
+          </Text>
+        </View>
       </LinearGradient>
 
       {/* Search and Filters */}
@@ -253,10 +261,24 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     backgroundColor: isDark ? '#121212' : '#f5f5f5',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 20,
     paddingTop: 50,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    gap: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerContent: {
+    flex: 1,
   },
   headerTitle: {
     fontSize: 24,

@@ -28,7 +28,7 @@ import { Colors, getThemeColors } from '../constants/Colors';
 
 const { width, height } = Dimensions.get('window');
 
-const MapScreen = () => {
+const MapScreen = ({ navigation }: any) => {
   const { history, user } = useSelector((state: RootState) => state);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [mapFilter, setMapFilter] = useState<'all' | 'ancient' | 'medieval' | 'modern'>('all');
@@ -163,6 +163,23 @@ const MapScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor="transparent" translucent />
+
+      {/* Header with Back Button */}
+      <Animated.View entering={FadeInDown.delay(100)} style={styles.headerContainer}>
+        <LinearGradient
+          colors={isDark ? ['rgba(26, 31, 46, 0.95)', 'rgba(15, 20, 25, 0.95)'] : ['rgba(255, 255, 255, 0.95)', 'rgba(245, 245, 247, 0.95)']}
+          style={styles.headerGradient}
+        >
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <X size={24} color={themeColors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerTitleContainer}>
+            <MapIcon size={20} color={Colors.primary} />
+            <Text style={styles.headerTitle}>Interactive Map</Text>
+          </View>
+          <View style={styles.headerSpacer} />
+        </LinearGradient>
+      </Animated.View>
 
       {/* Map View */}
       <View style={styles.mapFrame}>
@@ -306,6 +323,48 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
     flex: 1,
     backgroundColor: themeColors.background,
   },
+  headerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+  },
+  headerGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: themeColors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: themeColors.text,
+  },
+  headerSpacer: {
+    width: 40,
+  },
   mapFrame: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -314,7 +373,7 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
+    top: Platform.OS === 'ios' ? 120 : 100,
     left: 20,
     right: 20,
     zIndex: 10,
@@ -339,11 +398,6 @@ const createStyles = (isDark: boolean, themeColors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: themeColors.text,
   },
   filterToggle: {
     width: 36,
