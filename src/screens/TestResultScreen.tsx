@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
-import { updateStats, addExperience, addAchievement } from '../store/slices/userSlice';
+import { resetTest } from '../store/slices/testSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
@@ -19,53 +19,31 @@ import { firestoreService } from '../services/FirestoreService';
 
 const { width } = Dimensions.get('window');
 
-const QuizResultScreen = ({ navigation }: any) => {
+const TestResultScreen = ({ navigation }: any) => {
   const dispatch = useDispatch();
-  const { quiz, user, auth } = useSelector((state: RootState) => state);
+  const { test, user, auth } = useSelector((state: RootState) => state);
 
   const isDark = user.preferences.theme === 'dark';
-  const latestResult = quiz.quizResults[quiz.quizResults.length - 1];
+  const latestResult = test.testResults[test.testResults.length - 1];
 
   const scorePercentage = latestResult ? Math.round((latestResult.correctAnswers / latestResult.totalQuestions) * 100) : 0;
   const timeSpentMinutes = latestResult ? Math.floor(latestResult.timeSpent / 60) : 0;
   const timeSpentSeconds = latestResult ? latestResult.timeSpent % 60 : 0;
 
   useEffect(() => {
-    if (!latestResult) return;
+    if (!latestResult || !auth.isAuthenticated || !auth.user) return;
 
-    // Update user stats
-    const newStats = {
-      totalQuizzesTaken: user.stats.totalQuizzesTaken + 1,
-      averageScore: Math.round(
-        (user.stats.averageScore * user.stats.totalQuizzesTaken + scorePercentage) /
-        (user.stats.totalQuizzesTaken + 1)
-      ),
-      bestScore: Math.max(user.stats.bestScore, scorePercentage),
-      totalTimeSpent: user.stats.totalTimeSpent + latestResult.timeSpent,
-    };
-
-    dispatch(updateStats(newStats));
-
-    // Add experience points
-    const experienceGained = latestResult.correctAnswers * 50 + (scorePercentage >= 80 ? 100 : 0);
-    dispatch(addExperience(experienceGained));
-
-    // Check for achievements
-    if (scorePercentage === 100) dispatch(addAchievement('Perfect Score'));
-    if (user.stats.totalQuizzesTaken + 1 === 10) dispatch(addAchievement('Quiz Master'));
-
-    // Submit result to Firestore if user is authenticated
-    if (auth.isAuthenticated && auth.user) {
-      submitResultToFirestore();
-    }
-  }, [dispatch]);
+    // Submit result to Firestore
+    submitResultToFirestore();
+  }, []);
 
   const submitResultToFirestore = async () => {
     if (!latestResult || !auth.user) return;
 
     try {
-      // Submit quiz result
-      await firestoreService.submitQuizResult(auth.user.uid, latestResult);
+      // Submit test result
+      const resultWithUserId = { ...latestResult, userId: auth.user.uid };
+      await firestoreService.submitQuizResult(auth.user.uid, resultWithUserId as any);
 
       // Update user ranking data
       await firestoreService.updateUserRanking(auth.user.uid, {
@@ -74,18 +52,27 @@ const QuizResultScreen = ({ navigation }: any) => {
         photoURL: auth.user.photoURL || undefined,
       });
 
-      console.log('Quiz result submitted successfully');
+      console.log('Test result submitted successfully');
     } catch (error) {
-      console.error('Error submitting quiz result:', error);
-      // Don't show error to user as this is background operation
+      console.error('Error submitting test result:', error);
     }
   };
 
   const getRank = () => {
-    if (scorePercentage >= 95) return { label: 'GRAND MASTER', color: '#FFD700', icon: 'auto-awesome' };
-    if (scorePercentage >= 80) return { label: 'SCHOLAR', color: '#C0C0C0', icon: 'school' };
-    if (scorePercentage >= 60) return { label: 'NOVICE', color: '#CD7F32', icon: 'menu-book' };
-    return { label: 'ASPIRANT', color: '#888', icon: 'history-edu' };
+    if (scorePercentage >= 95) return { label: 'EXCELLENT', color: '#FFD700', icon: 'auto-awesome' };
+    if (scorePercentage >= 80) return { label: 'VERY GOOD', color: '#4CAF50', icon: 'school' };
+    if (scorePercentage >= 60) return { label: 'GOOD', color: '#FF9800', icon: 'menu-book' };
+    if (scorePercentage >= 40) return { label: 'AVERAGE', color: '#2196F3', icon: 'history-edu' };
+    return { label: 'NEEDS IMPROVEMENT', color: '#F44336', icon: 'trending-up' };
+  };
+
+  const handleRetakeTest = () => {
+    dispatch(resetTest());
+    navigation.navigate('TestList');
+  };
+
+  const handleViewLeaderboard = () => {
+    navigation.navigate('Leaderboard');
   };
 
   if (!latestResult) return null;
@@ -106,8 +93,9 @@ const QuizResultScreen = ({ navigation }: any) => {
             <Text style={[styles.rankLabel, { color: rank.color }]}>{rank.label}</Text>
           </Animated.View>
 
-          <Text style={styles.congratText}>Quiz Conquest Complete</Text>
+          <Text style={styles.congratText}>Test Completed!</Text>
           <Text style={styles.scoreText}>{scorePercentage}%</Text>
+          <Text style={styles.testTitle}>{latestResult.testTitle}</Text>
         </LinearGradient>
 
         <View style={styles.content}>
@@ -116,6 +104,11 @@ const QuizResultScreen = ({ navigation }: any) => {
               <Icon name="check-circle" size={24} color="#4CAF50" />
               <Text style={[styles.statVal, isDark && { color: '#fff' }]}>{latestResult.correctAnswers}</Text>
               <Text style={styles.statLab}>CORRECT</Text>
+            </View>
+            <View style={[styles.statBox, isDark && { backgroundColor: '#1E1E1E' }]}>
+              <Icon name="cancel" size={24} color="#F44336" />
+              <Text style={[styles.statVal, isDark && { color: '#fff' }]}>{latestResult.totalQuestions - latestResult.correctAnswers}</Text>
+              <Text style={styles.statLab}>WRONG</Text>
             </View>
             <View style={[styles.statBox, isDark && { backgroundColor: '#1E1E1E' }]}>
               <Icon name="timer" size={24} color="#2196F3" />
@@ -129,33 +122,39 @@ const QuizResultScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          <Animated.View entering={FadeInUp.delay(400)} style={[styles.masteryCard, isDark && { backgroundColor: '#1E1E1E' }]}>
-            <Text style={[styles.cardTitle, isDark && { color: '#fff' }]}>Mastery Analysis</Text>
-            <View style={styles.masteryRow}>
-              <Text style={styles.masteryLabel}>Historical Accuracy</Text>
-              <View style={styles.masteryBarTrack}>
-                <View style={[styles.masteryBarFill, { width: `${scorePercentage}%`, backgroundColor: rank.color }]} />
+          <Animated.View entering={FadeInUp.delay(400)} style={[styles.performanceCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+            <Text style={[styles.cardTitle, isDark && { color: '#fff' }]}>Performance Analysis</Text>
+            <View style={styles.performanceRow}>
+              <Text style={styles.performanceLabel}>Accuracy</Text>
+              <View style={styles.performanceBarTrack}>
+                <View style={[styles.performanceBarFill, { width: `${scorePercentage}%`, backgroundColor: rank.color }]} />
               </View>
+              <Text style={[styles.performanceValue, { color: rank.color }]}>{scorePercentage}%</Text>
             </View>
-            <Text style={styles.masteryNote}>Difficulty: {latestResult.difficulty.toUpperCase()} • {latestResult.region.toUpperCase()}</Text>
+            <Text style={styles.performanceNote}>
+              You answered {latestResult.correctAnswers} out of {latestResult.totalQuestions} questions correctly
+            </Text>
           </Animated.View>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('QuizSetup')}
-            style={styles.primaryBtn}
-          >
-            <LinearGradient colors={['#FF6B35', '#F7931E']} style={styles.btnGradient}>
-              <Text style={styles.btnText}>NEW QUEST</Text>
-              <Icon name="refresh" size={20} color="#fff" />
-            </LinearGradient>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={handleViewLeaderboard}
+              style={[styles.secondaryBtn, isDark && { backgroundColor: '#1E1E1E' }]}
+            >
+              <Icon name="leaderboard" size={20} color="#FF6B35" style={{ marginRight: 8 }} />
+              <Text style={styles.secondaryBtnText}>VIEW LEADERBOARD</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Home')}
-            style={[styles.secondaryBtn, isDark && { backgroundColor: '#1E1E1E' }]}
-          >
-            <Text style={styles.secondaryBtnText}>RETURN TO CITADEL</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleRetakeTest}
+              style={styles.primaryBtn}
+            >
+              <LinearGradient colors={['#FF6B35', '#F7931E']} style={styles.btnGradient}>
+                <Text style={styles.btnText}>TAKE ANOTHER TEST</Text>
+                <Icon name="refresh" size={20} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
   },
   rankLabel: {
     marginTop: 15,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '900',
     letterSpacing: 2,
   },
@@ -204,22 +203,29 @@ const styles = StyleSheet.create({
     fontSize: 72,
     fontWeight: '900',
   },
+  testTitle: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 10,
+  },
   content: {
     padding: 25,
     marginTop: -30,
   },
   statsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 25,
   },
   statBox: {
-    flex: 1,
+    width: '48%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 24,
     alignItems: 'center',
-    marginHorizontal: 5,
+    marginBottom: 15,
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10 },
       android: { elevation: 4 }
@@ -237,7 +243,7 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 2,
   },
-  masteryCard: {
+  performanceCard: {
     backgroundColor: '#fff',
     padding: 25,
     borderRadius: 28,
@@ -249,37 +255,45 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     marginBottom: 20,
   },
-  masteryRow: {
+  performanceRow: {
     marginBottom: 15,
   },
-  masteryLabel: {
+  performanceLabel: {
     fontSize: 13,
     fontWeight: 'bold',
     color: '#666',
     marginBottom: 8,
   },
-  masteryBarTrack: {
+  performanceBarTrack: {
     height: 10,
     backgroundColor: '#F0F0F0',
     borderRadius: 5,
     overflow: 'hidden',
+    marginBottom: 8,
   },
-  masteryBarFill: {
+  performanceBarFill: {
     height: '100%',
     borderRadius: 5,
   },
-  masteryNote: {
-    fontSize: 11,
+  performanceValue: {
+    fontSize: 14,
+    fontWeight: '900',
+    textAlign: 'right',
+  },
+  performanceNote: {
+    fontSize: 12,
     color: '#999',
-    fontWeight: 'bold',
+    fontWeight: '600',
     textAlign: 'center',
     marginTop: 10,
+  },
+  buttonContainer: {
+    gap: 15,
   },
   primaryBtn: {
     height: 65,
     borderRadius: 32.5,
     overflow: 'hidden',
-    marginBottom: 15,
   },
   btnGradient: {
     flex: 1,
@@ -300,6 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    flexDirection: 'row',
   },
   secondaryBtnText: {
     color: '#FF6B35',
@@ -309,4 +324,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default QuizResultScreen;
+export default TestResultScreen;

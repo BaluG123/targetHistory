@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { authService } from '../../services/AuthService';
+import { storage, StorageKeys } from '../../utils/storage';
 
 interface UserData {
     uid: string;
@@ -17,10 +18,26 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
-    loading: false,
+    loading: true, // Start with loading true to checking session
     error: null,
     isAuthenticated: false,
 };
+
+// Async action to restore session on app start
+export const restoreSession = createAsyncThunk(
+    'auth/restoreSession',
+    async (_, { rejectWithValue }) => {
+        try {
+            const session = await storage.getItem(StorageKeys.USER_SESSION);
+            if (session) {
+                return JSON.parse(session);
+            }
+            return null;
+        } catch (error) {
+            return rejectWithValue('Failed to restore session');
+        }
+    }
+);
 
 export const signInWithGoogle = createAsyncThunk(
     'auth/signInWithGoogle',
@@ -28,12 +45,14 @@ export const signInWithGoogle = createAsyncThunk(
         try {
             const userCredential = await authService.signInWithGoogle();
             const user = userCredential.user;
-            return {
+            const userData = {
                 uid: user.uid,
                 email: user.email,
                 displayName: user.displayName,
                 photoURL: user.photoURL,
             };
+            await storage.setItem(StorageKeys.USER_SESSION, JSON.stringify(userData));
+            return userData;
         } catch (error: any) {
             return rejectWithValue(error.message || 'Failed to sign in');
         }
@@ -44,6 +63,7 @@ export const signOutUser = createAsyncThunk(
     'auth/signOut',
     async () => {
         await authService.signOut();
+        await storage.removeItem(StorageKeys.USER_SESSION);
     }
 );
 
@@ -62,6 +82,16 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // Restore Session
+            .addCase(restoreSession.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.isAuthenticated = !!action.payload;
+                state.loading = false;
+            })
+            .addCase(restoreSession.rejected, (state) => {
+                state.loading = false;
+            })
+            // Sign In
             .addCase(signInWithGoogle.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -75,6 +105,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
+            // Sign Out
             .addCase(signOutUser.fulfilled, (state) => {
                 state.user = null;
                 state.isAuthenticated = false;

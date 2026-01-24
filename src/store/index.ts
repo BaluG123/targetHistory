@@ -3,6 +3,7 @@ import historyReducer from './slices/historySlice';
 import quizReducer from './slices/quizSlice';
 import userReducer from './slices/userSlice';
 import authReducer from './slices/authSlice';
+import testReducer from './slices/testSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     quiz: quizReducer,
     user: userReducer,
     auth: authReducer,
+    test: testReducer,
   },
 });
 

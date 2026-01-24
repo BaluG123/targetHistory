@@ -11,17 +11,23 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { store } from './src/store';
+import { restoreSession } from './src/store/slices/authSlice';
 import AppNavigator from './src/navigation/AppNavigator';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
+  React.useEffect(() => {
+    // Restore user session
+    store.dispatch(restoreSession() as any);
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <SafeAreaProvider>
-          <StatusBar 
-            barStyle={isDarkMode ? 'light-content' : 'dark-content'} 
+          <StatusBar
+            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
             backgroundColor="transparent"
             translucent
           />

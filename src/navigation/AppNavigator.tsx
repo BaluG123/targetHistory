@@ -16,6 +16,8 @@ import ExploreScreen from '../screens/ExploreScreen';
 import QuizScreen from '../screens/QuizScreen';
 import QuizSetupScreen from '../screens/QuizSetupScreen';
 import QuizResultScreen from '../screens/QuizResultScreen';
+import TestScreen from '../screens/TestScreen';
+import TestResultScreen from '../screens/TestResultScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import RulerDetailScreen from '../screens/RulerDetailScreen';
@@ -23,6 +25,7 @@ import TimelineScreen from '../screens/TimelineScreen';
 import MapScreen from '../screens/MapScreen';
 import ConceptsScreen from '../screens/ConceptsScreen';
 import EventsScreen from '../screens/EventsScreen';
+import LeaderboardScreen from '../screens/LeaderboardScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -44,6 +47,15 @@ const ExploreStack = () => (
     <Stack.Screen name="Map" component={MapScreen} />
     <Stack.Screen name="Concepts" component={ConceptsScreen} />
     <Stack.Screen name="Events" component={EventsScreen} />
+  </Stack.Navigator>
+);
+
+const TestsStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="TestList" component={TestListScreen} />
+    <Stack.Screen name="Test" component={TestScreen} />
+    <Stack.Screen name="TestResult" component={TestResultScreen} />
+    <Stack.Screen name="Leaderboard" component={LeaderboardScreen} />
   </Stack.Navigator>
 );
 
@@ -188,7 +200,7 @@ const AppNavigator = () => {
         />
         <Tab.Screen
           name="Tests"
-          component={TestListScreen}
+          component={TestsStack}
           options={{
             tabBarLabel: 'Tests',
           }}

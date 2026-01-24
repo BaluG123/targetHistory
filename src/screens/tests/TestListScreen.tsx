@@ -1,17 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RootState } from '../../store';
 import { signInWithGoogle } from '../../store/slices/authSlice';
+import { startTest } from '../../store/slices/testSlice';
 import { Colors } from '../../constants/Colors';
+import { ActivityIndicator, Alert } from 'react-native';
+import { firestoreService, Ranker } from '../../services/FirestoreService';
 
-const TestCard = ({ id, title, questions, duration, locked, onPress, index }: any) => (
+const TestCard = ({ title, questions, duration, locked, onPress, index, isDark, loading }: any) => (
     <Animated.View entering={FadeInUp.delay(index * 100).duration(500)}>
         <TouchableOpacity
-            style={[styles.testCard, locked && styles.lockedCard]}
+            style={[styles.testCard, locked && styles.lockedCard, isDark && { backgroundColor: '#1E1E1E' }]}
             onPress={onPress}
             disabled={locked}
             activeOpacity={0.8}
@@ -42,7 +45,11 @@ const TestCard = ({ id, title, questions, duration, locked, onPress, index }: an
 
                 {!locked && (
                     <View style={styles.playButton}>
-                        <Icon name="play-arrow" size={24} color={Colors.primary} />
+                        {loading ? (
+                            <ActivityIndicator size="small" color={Colors.primary} />
+                        ) : (
+                            <Icon name="play-arrow" size={24} color={Colors.primary} />
+                        )}
                     </View>
                 )}
             </LinearGradient>
@@ -50,49 +57,159 @@ const TestCard = ({ id, title, questions, duration, locked, onPress, index }: an
     </Animated.View>
 );
 
-const TestListScreen = () => {
+const RankerCard = ({ ranker, rank, isDark }: { ranker: Ranker; rank: number; isDark: boolean }) => {
+    const getRankStyles = () => {
+        switch (rank) {
+            case 1: return { icon: 'workspace-premium', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)' };
+            case 2: return { icon: 'emoji-events', color: '#C0C0C0', bg: 'rgba(192, 192, 192, 0.15)' };
+            case 3: return { icon: 'military-tech', color: '#CD7F32', bg: 'rgba(205, 127, 50, 0.15)' };
+            default: return { icon: 'person', color: '#888', bg: 'rgba(136, 136, 136, 0.1)' };
+        }
+    };
+
+    const styles_rank = getRankStyles();
+
+    return (
+        <Animated.View entering={FadeInUp.delay(Math.min(rank * 100, 500))}>
+            <View style={[styles.rankerCard, isDark && { backgroundColor: '#1E1E1E' }]}>
+                <View style={[styles.rankIconContainer_small, { backgroundColor: styles_rank.bg }]}>
+                    <Icon name={styles_rank.icon} size={20} color={styles_rank.color} />
+                </View>
+                <View style={styles.rankerInfo}>
+                    <Text style={[styles.rankerName, isDark && { color: '#fff' }]}>{ranker.name}</Text>
+                    <Text style={styles.rankerScore}>{ranker.score || 0} Points • {ranker.totalQuizzes || 0} Tests</Text>
+                </View>
+                <View style={styles.rankBadge_small}>
+                    <Text style={[styles.rankText, { color: styles_rank.color }]}>#{rank}</Text>
+                </View>
+            </View>
+        </Animated.View>
+    );
+};
+
+const TestListScreen = ({ navigation }: any) => {
     const dispatch = useDispatch();
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+    const theme = useSelector((state: RootState) => state.user.preferences.theme);
+    const [loading, setLoading] = React.useState<string | null>(null);
+    const [rankersLoading, setRankersLoading] = React.useState(true);
+    const [topRankers, setTopRankers] = React.useState<Ranker[]>([]);
+    const isDark = theme === 'dark';
+    const themeColors = isDark ? {
+        background: '#121212',
+        card: '#1E1E1E',
+        text: '#FFFFFF',
+        textSecondary: '#AAAAAA'
+    } : {
+        background: '#F5F5F7',
+        card: '#FFFFFF',
+        text: '#000000',
+        textSecondary: '#666666'
+    };
 
     // Mock Data for Tests
     const tests = [
-        { id: 1, title: 'Modern History Grand Test', questions: 50, duration: 60 },
-        { id: 2, title: 'Ancient Civilizations', questions: 50, duration: 60 },
-        { id: 3, title: 'Medieval Dynasties', questions: 50, duration: 60 },
-        { id: 4, title: 'Freedom Struggle', questions: 100, duration: 120 },
+        { id: 'test1', title: 'History Test 1', questions: 20, duration: 30, slug: 'test1' },
+        { id: 'test2', title: 'History Test 2', questions: 20, duration: 30, slug: 'test2' },
     ];
+
+    // Fetch top rankers when component mounts
+    React.useEffect(() => {
+        fetchTopRankers();
+    }, []);
+
+    const fetchTopRankers = async () => {
+        try {
+            setRankersLoading(true);
+            const rankers = await firestoreService.fetchTopRankers(5);
+            setTopRankers(rankers);
+        } catch (error) {
+            console.error('Error fetching rankers:', error);
+            // Don't show dummy data, just leave empty
+            setTopRankers([]);
+        } finally {
+            setRankersLoading(false);
+        }
+    };
 
     const handleSignIn = () => {
         dispatch(signInWithGoogle() as any);
     };
 
-    const handleTestPress = (id: number) => {
-        // TODO: Navigate to active test screen
-        console.log('Start Test', id);
+    const handleTestPress = async (test: any) => {
+        if (!isAuthenticated) {
+            Alert.alert('Sign In Required', 'Please sign in to take tests.');
+            return;
+        }
+
+        setLoading(test.id);
+        try {
+            // Fetch test from Firestore
+            const testData = await firestoreService.fetchTest(test.slug);
+            
+            if (!testData || testData.questions.length === 0) {
+                Alert.alert(
+                    'Test Not Available', 
+                    'This test needs to be uploaded first. Please ask admin to upload test data.',
+                    [
+                        { text: 'OK' },
+                        { 
+                            text: 'Upload Now', 
+                            onPress: () => navigation.navigate('Profile')
+                        }
+                    ]
+                );
+                return;
+            }
+
+            // Start Test using test slice
+            dispatch(startTest({
+                testId: testData.id,
+                testTitle: testData.title,
+                questions: testData.questions,
+                timeLimit: testData.duration * 60,
+            }));
+
+            // Navigate to Test Screen
+            navigation.navigate('Test');
+        } catch (error) {
+            console.error('Error loading test:', error);
+            Alert.alert(
+                'Error Loading Test', 
+                'Failed to load test. This might be due to:\n\n1. Test not uploaded yet\n2. Network connection issues\n3. Permission settings\n\nPlease try uploading the test first.',
+                [
+                    { text: 'OK' },
+                    { 
+                        text: 'Go to Profile', 
+                        onPress: () => navigation.navigate('Profile')
+                    }
+                ]
+            );
+        } finally {
+            setLoading(null);
+        }
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: themeColors.background }]}>
             <LinearGradient
-                colors={Colors.gradients.royal}
+                colors={isDark ? ['#1A237E', '#0D47A1'] : Colors.gradients.royal}
                 style={styles.header}
             >
                 <Animated.View entering={FadeInDown.duration(1000)}>
                     <Text style={styles.title}>Premium Tests</Text>
-                    <Text style={styles.subtitle}>High-stakes exams for serious aspirants</Text>
+                    <Text style={styles.subtitle}>
+                        High-stakes exams for serious aspirants
+                    </Text>
                 </Animated.View>
             </LinearGradient>
 
             {!isAuthenticated ? (
                 <View style={styles.lockContainer}>
-                    <Animated.View entering={FadeInUp.delay(300)} style={styles.lockContent}>
-                        <Image
-                            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2913/2913133.png' }} // Placeholder or local asset
-                            style={styles.lockImage}
-                        />
+                    <Animated.View entering={FadeInUp.delay(300)} style={[styles.lockContent, { backgroundColor: themeColors.card }]}>
                         <Icon name="lock" size={64} color={Colors.primary} style={styles.mainLockIcon} />
-                        <Text style={styles.lockTitle}>Premium Access Required</Text>
-                        <Text style={styles.lockDesc}>
+                        <Text style={[styles.lockTitle, { color: themeColors.text }]}>Premium Access Required</Text>
+                        <Text style={[styles.lockDesc, { color: themeColors.textSecondary }]}>
                             Sign in with Google to access our world-class history test series and complete on the global leaderboard.
                         </Text>
 
@@ -112,19 +229,50 @@ const TestListScreen = () => {
                             {...test}
                             locked={false}
                             index={index}
-                            onPress={() => handleTestPress(test.id)}
+                            onPress={() => handleTestPress(test)}
+                            isDark={isDark}
+                            loading={loading === test.id}
                         />
                     ))}
+
+                    {/* Top Rankers Section */}
+                    <View style={styles.rankerSection}>
+                        <View style={styles.sectionHeaderContainer}>
+                            <Text style={[styles.sectionHeader, { color: themeColors.text, marginTop: 0 }]}>Top Rankers</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Leaderboard')}>
+                                <Text style={styles.viewAllText}>View All</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {rankersLoading ? (
+                            <View style={styles.loadingContainer}>
+                                <ActivityIndicator size="small" color={Colors.primary} />
+                                <Text style={[styles.loadingText, { color: themeColors.textSecondary }]}>Loading rankers...</Text>
+                            </View>
+                        ) : topRankers.length === 0 ? (
+                            <View style={styles.emptyRankersContainer}>
+                                <Icon name="leaderboard" size={48} color={themeColors.textSecondary} />
+                                <Text style={[styles.emptyRankersText, { color: themeColors.textSecondary }]}>
+                                    No rankers yet. Be the first to complete a test!
+                                </Text>
+                            </View>
+                        ) : (
+                            topRankers.map((ranker, idx) => (
+                                <RankerCard key={ranker.id} ranker={ranker} rank={idx + 1} isDark={isDark} />
+                            ))
+                        )}
+                    </View>
+
                     {/* Coming Soon Section */}
-                    <Text style={styles.sectionHeader}>Coming Soon</Text>
+                    <Text style={[styles.sectionHeader, { color: themeColors.textSecondary }]}>Coming Soon</Text>
                     <TestCard
                         id={99}
-                        title="World Wars Mega Quiz"
-                        questions={100}
-                        duration={120}
+                        title="Advanced History Test"
+                        questions={50}
+                        duration={60}
                         locked={true}
                         index={5}
                         onPress={() => { }}
+                        isDark={isDark}
                     />
                 </ScrollView>
             )}
@@ -306,6 +454,86 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '700',
+    },
+    rankerSection: {
+        marginTop: 30,
+    },
+    sectionHeaderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+        paddingRight: 5,
+    },
+    viewAllText: {
+        color: Colors.primary,
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    rankerCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 15,
+        borderRadius: 20,
+        marginBottom: 12,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    rankIconContainer_small: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 15,
+    },
+    rankerInfo: {
+        flex: 1,
+    },
+    rankerName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#333',
+    },
+    rankerScore: {
+        fontSize: 13,
+        color: '#888',
+        marginTop: 2,
+    },
+    rankBadge_small: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        backgroundColor: 'rgba(0,0,0,0.03)',
+    },
+    rankText: {
+        fontSize: 14,
+        fontWeight: '900',
+    },
+    loadingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+    },
+    loadingText: {
+        marginLeft: 10,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    emptyRankersContainer: {
+        alignItems: 'center',
+        padding: 30,
+    },
+    emptyRankersText: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginTop: 10,
     },
 });
 

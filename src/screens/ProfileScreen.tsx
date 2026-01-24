@@ -15,6 +15,9 @@ import { signInWithGoogle, signOutUser } from '../store/slices/authSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
+import { isAdmin } from '../config/admin';
+import { uploadSampleQuestions, uploadTest1With20Questions, uploadTest2With20Questions, uploadFullTestSuite } from '../scripts/uploadQuestions';
+import { uploadManager } from '../utils/uploadManager';
 
 const StatCard = ({ title, value, icon, color, styles }: any) => (
   <Animated.View entering={FadeInUp.delay(300)} style={styles.statCard}>
@@ -70,6 +73,49 @@ const ProfileScreen = () => {
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Sign Out', style: 'destructive', onPress: () => dispatch(signOutUser() as any) }
+      ]
+    );
+  };
+
+  const handleSyncContent = async () => {
+    Alert.alert(
+      'Developer Upload',
+      'Upload test content to Firestore (Developer Only):',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Upload Test1 (20Q)',
+          onPress: async () => {
+            const success = await uploadManager.performUpload('test1');
+            if (success) {
+              Alert.alert('Success', 'Test1 with 20 questions uploaded successfully!');
+            } else {
+              Alert.alert('Error', 'Failed to upload Test1. Check console/permissions.');
+            }
+          }
+        },
+        {
+          text: 'Upload Test2 (20Q)',
+          onPress: async () => {
+            const success = await uploadManager.performUpload('test2');
+            if (success) {
+              Alert.alert('Success', 'Test2 with 20 questions uploaded successfully!');
+            } else {
+              Alert.alert('Error', 'Failed to upload Test2. Check console/permissions.');
+            }
+          }
+        },
+        {
+          text: 'Upload Sample',
+          onPress: async () => {
+            const success = await uploadSampleQuestions();
+            if (success) {
+              Alert.alert('Success', 'Sample content updated successfully!');
+            } else {
+              Alert.alert('Error', 'Failed to upload content. Check console/permissions.');
+            }
+          }
+        }
       ]
     );
   };
@@ -309,6 +355,27 @@ const ProfileScreen = () => {
           />
         </Animated.View>
 
+        {/* Developer Tools - Only Visible to balusgoudi11@gmail.com */}
+        {isAuthenticated && isAdmin(authUser?.email) && (
+          <Animated.View entering={FadeInUp.delay(900)} style={styles.settingsSection}>
+            <Text style={styles.sectionTitle}>Developer Tools</Text>
+            <Text style={styles.developerNote}>
+              🔒 Only visible to: balusgoudi11@gmail.com
+            </Text>
+            <TouchableOpacity style={styles.adminButton} onPress={handleSyncContent}>
+              <LinearGradient
+                colors={['#1A237E', '#283593']}
+                style={styles.adminGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Icon name="cloud-upload" size={24} color="#fff" />
+                <Text style={styles.adminButtonText}>Upload Test Data</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
         {/* Actions */}
         <Animated.View entering={FadeInUp.delay(800)} style={styles.actionsSection}>
           <TouchableOpacity style={styles.actionButton} onPress={handleResetProgress}>
@@ -476,6 +543,16 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     marginBottom: 15,
     paddingHorizontal: 20,
   },
+  developerNote: {
+    fontSize: 12,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 15,
+    marginHorizontal: 20,
+    backgroundColor: '#F0F8FF',
+    padding: 8,
+    borderRadius: 8,
+  },
   achievementsSection: {
     marginBottom: 30,
   },
@@ -600,6 +677,25 @@ const createStyles = (isDark: boolean) => StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FF6B35',
+  },
+  adminButton: {
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 4,
+  },
+  adminGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    justifyContent: 'center',
+  },
+  adminButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
   },
 });
 

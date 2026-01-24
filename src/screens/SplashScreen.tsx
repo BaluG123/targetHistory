@@ -115,7 +115,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           style={styles.logoContainer}
         >
           <View style={styles.logoBackground}>
-            <RotatingIcon iconName="account_balance" />
+            <RotatingIcon iconName="menu_book" />
           </View>
         </Animated.View>
 
