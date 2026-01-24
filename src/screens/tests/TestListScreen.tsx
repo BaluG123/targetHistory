@@ -109,8 +109,8 @@ const TestListScreen = ({ navigation }: any) => {
 
     // Mock Data for Tests
     const tests = [
-        { id: 'test1', title: 'History Test 1', questions: 20, duration: 30, slug: 'test1' },
-        { id: 'test2', title: 'History Test 2', questions: 20, duration: 30, slug: 'test2' },
+        { id: 'test1', title: 'History Test 1', questions: 100, duration: 90, slug: 'test1' },
+        { id: 'test2', title: 'History Test 2', questions: 100, duration: 90, slug: 'test2' },
     ];
 
     // Fetch top rankers when component mounts
