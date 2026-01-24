@@ -85,10 +85,10 @@ export const uploadTest1With20Questions = async () => {
 
         await testRef.set({
             title: 'History Test 1',
-            description: 'Comprehensive history test covering ancient, medieval, and modern periods - 20 Questions',
+            description: 'Comprehensive history test covering ancient, medieval, and modern periods - 100 Questions',
             difficulty: 'medium',
             category: 'mixed',
-            duration: 30,
+            duration: 90,
             questions: test1Questions,
             createdAt: firestore.FieldValue.serverTimestamp(),
             updatedAt: firestore.FieldValue.serverTimestamp(),
@@ -108,10 +108,10 @@ export const uploadTest2With20Questions = async () => {
 
         await testRef.set({
             title: 'History Test 2',
-            description: 'Advanced history test covering medieval empires, freedom struggle, and ancient civilizations - 20 Questions',
+            description: 'Advanced history test covering medieval empires, freedom struggle, and ancient civilizations - 100 Questions',
             difficulty: 'medium',
             category: 'mixed',
-            duration: 30,
+            duration: 90,
             questions: test2Questions,
             createdAt: firestore.FieldValue.serverTimestamp(),
             updatedAt: firestore.FieldValue.serverTimestamp(),
